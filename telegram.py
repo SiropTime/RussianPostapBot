@@ -34,7 +34,8 @@ async def send_welcome(msg: types.Message):
                         Сейчас нам нужно создать твоего персонажа, введи своё имя!
                         P.S. Если у тебя уже есть персонаж, введи команду /return
                         """)
-    player.id = msg.from_user.id
+    # game.create_player(msg.from_user.id, "User", "None")
+
 
 @dp.message_handler(commands=['return'])
 async def return_player(msg: types.Message):

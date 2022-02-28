@@ -30,6 +30,14 @@ class Game:
         self.player.add_item_to_inventory(self.cursor, item)
         print(self.player.inventory)
 
+    def create_player(self, id: int, name: str, biography: str):
+        player = Player()
+        player.id = id
+        player.name = name
+        player.biography = biography
+        self.players[id] = player
+        self.player._create_player(self.cursor)
+
     def load_locations(self):
         self.cursor.execute("""
                             SELECT * FROM locations;
@@ -96,6 +104,13 @@ class Player:
                         INSERT INTO inventory (player_id, item, quantity, description) VALUES
                         (?, ?, ?, ?)
                         """, (self.id, item.name, item.quantity, item.description))
+
+    # Создаём персонажа и загружаем его в бд.
+    def _create_player(self, cursor: sqlite3.Cursor):
+        cursor.execute("""
+                       INSERT INTO players (id, name, biography) VALUES (?, ?, ?)
+                       """,
+                       (self.id, self.name, self.biography))
 
     # Загружаем персонажа из базы данных
     def load_player(self, cursor: sqlite3.Cursor):
