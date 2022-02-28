@@ -106,6 +106,7 @@ class Player:
                         """, (self.id, item.name, item.quantity, item.description))
 
     # Создаём персонажа и загружаем его в бд.
+    #
     def _create_player(self, cursor: sqlite3.Cursor):
         cursor.execute("""
                        INSERT INTO players (id, name, biography) VALUES (?, ?, ?)
