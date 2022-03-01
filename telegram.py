@@ -4,20 +4,13 @@ from aiogram.types import ParseMode
 from aiogram.utils import executor
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
+from emoji import emojize
 import aiogram.utils.markdown as md
 
 from game import *
 from game_utils import *
+from utility import *
 
-TOKEN = "5218155011:AAF0GYeUQtMswyMXHhsULlrLHlnQrphEpA8"
-ADMIN = 390919747
-
-START_MSG = """
-Здравствуй!
-Этот бот предназначен для помощи в отыгрыше Словесной РПГ.
-Сейчас нам нужно создать твоего персонажа, введи своё имя!
-P.S. Если у тебя уже есть персонаж, введи команду /return
-"""
 
 bot = Bot(token=TOKEN)
 storage = MemoryStorage()
@@ -29,9 +22,17 @@ kb = types.ReplyKeyboardMarkup(resize_keyboard=True)
 kb.add(types.InlineKeyboardButton(text="Создать персонажа"))
 
 
+
 class Form(StatesGroup):
     name = State()
     biography = State()
+
+
+class MainSkillsForm(StatesGroup):
+    physics = State()
+    intelligence = State()
+    perception = State()
+    charisma = State()
 
 
 def check_player(id: int) -> bool:
@@ -67,19 +68,19 @@ async def process_name(msg: types.Message, state: FSMContext):
 async def process_biography(msg: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data['biography'] = msg.text
-        markup = types.ReplyKeyboardRemove()
         await msg.answer(md.text(md.text("Ваше имя: ", md.bold(data['name'])),
                                  md.text("Ваша биография: ", data['biography']),
-                         md.text("Если вы совершили ошибку - введите команду /start ещё раз."),
-                         md.text("Иначе введите команду /next для распределения навыков."), sep='\n'),
-                         reply_markup=markup,
+                                 md.text("Если вы совершили ошибку - введите команду /start ещё раз."),
+                                 md.text("Иначе введите команду /next для распределения навыков."), sep='\n'),
                          parse_mode=ParseMode.MARKDOWN)
     await state.finish()
 
 
 @dp.message_handler(commands=['next'])
 async def setup_main_skills(msg: types.Message):
-    pass
+    await msg.answer(MAIN_SKILLS_MSG_0, parse_mode=types.ParseMode.HTML)
+    for i in range(len(MAIN_SKILLS_MSGS)):
+        await msg.answer(MAIN_SKILLS_MSGS[i], parse_mode=types.ParseMode.MARKDOWN)
 
 
 @dp.message_handler(commands=['return'])
