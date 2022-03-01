@@ -82,6 +82,41 @@ async def setup_main_skills(msg: types.Message):
     for i in range(len(MAIN_SKILLS_MSGS)):
         await msg.answer(MAIN_SKILLS_MSGS[i], parse_mode=types.ParseMode.MARKDOWN)
 
+    await MainSkillsForm.physics.set()
+    await msg.reply("Введите количество очков физической подготовки от 1 до 20:")
+
+
+@dp.message_handler(lambda msg: not msg.text.isdigit(), state=[MainSkillsForm.physics, MainSkillsForm.intelligence, MainSkillsForm.perception, MainSkillsForm.charisma])
+async def process_skills_invalid(msg: types.Message):
+    return await msg.reply("Напишите количество очков цифрами!")
+
+
+@dp.message_handler(lambda msg: msg.text.isdigit(), state=MainSkillsForm.physics)
+async def process_physics(msg: types.Message, state: FSMContext):
+    await state.update_data(physics=int(msg.text))
+    await MainSkillsForm.next()
+    await msg.reply("Введите количество очков интеллекта от 1 до 20:")
+
+
+@dp.message_handler(lambda msg: msg.text.isdigit(), state=MainSkillsForm.intelligence)
+async def process_intelligence(msg: types.Message, state: FSMContext):
+    await state.update_data(intelligence=int(msg.text))
+    await MainSkillsForm.next()
+    await msg.reply("Введите количество очков восприятия от 1 до 20:")
+
+
+@dp.message_handler(lambda msg: msg.text.isdigit(), state=MainSkillsForm.perception)
+async def process_perception(msg: types.Message, state: FSMContext):
+    await state.update_data(perception=int(msg.text))
+    await MainSkillsForm.next()
+    await msg.reply("Введите количество очков харизмы от 1 до 20:")
+
+
+@dp.message_handler(lambda msg: msg.text.isdigit(), state=MainSkillsForm.charisma)
+async def process_charisma(msg: types.Message, state: FSMContext):
+    await state.update_data(charisma=int(msg.text))
+    async with state.proxy() as data:
+        await msg.reply(md.text(data["physics"], data["intelligence"], data["perception"], data["charisma"]))
 
 @dp.message_handler(commands=['return'])
 async def return_player(msg: types.Message):
