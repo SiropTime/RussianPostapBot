@@ -20,8 +20,8 @@ P.S. Если у тебя уже есть персонаж, введи кома�
 """
 
 bot = Bot(token=TOKEN)
-dp = Dispatcher(bot)
 storage = MemoryStorage()
+dp = Dispatcher(bot, storage=storage)
 player = Player()
 game = Game()
 
@@ -42,6 +42,7 @@ def check_player(id: int) -> bool:
             return res
         else:
             res = False
+    return res
 
 
 @dp.message_handler(commands=['start'])
@@ -68,10 +69,17 @@ async def process_biography(msg: types.Message, state: FSMContext):
         data['biography'] = msg.text
         markup = types.ReplyKeyboardRemove()
         await msg.answer(md.text(md.text("Ваше имя: ", md.bold(data['name'])),
-                                 md.text("Ваша биография:", data['biography']), sep='\n'),
+                                 md.text("Ваша биография: ", data['biography']),
+                         md.text("Если вы совершили ошибку - введите команду /start ещё раз."),
+                         md.text("Иначе введите команду /next для распределения навыков."), sep='\n'),
                          reply_markup=markup,
                          parse_mode=ParseMode.MARKDOWN)
     await state.finish()
+
+
+@dp.message_handler(commands=['next'])
+async def setup_main_skills(msg: types.Message):
+    pass
 
 
 @dp.message_handler(commands=['return'])
