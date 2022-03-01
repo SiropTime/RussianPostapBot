@@ -20,23 +20,22 @@ class Game:
         self.cursor = self.db.cursor()
         self.load_locations()
 
-        self.player = Player()
-        self.player.id = 1
-        self.player.load_player(self.cursor)
-        item = Item()
-        item.name = "Патрон"
-        item.quantity = 1
-        item.description = "9мм"
-        self.player.add_item_to_inventory(self.cursor, item)
-        print(self.player.inventory)
+        # self.player = Player()
+        # self.player.id = 1
+        # self.player.load_player(self.cursor)
+        # item = Item()
+        # item.name = "Патрон"
+        # item.quantity = 1
+        # item.description = "9мм"
+        # self.player.add_item_to_inventory(self.cursor, item)
+        # print(self.player.inventory)
 
-    def create_player(self, id: int, name: str, biography: str):
-        player = Player()
+    def create_player(self, id: int, name: str, biography: str, player):
         player.id = id
         player.name = name
         player.biography = biography
         self.players[id] = player
-        self.player._create_player(self.cursor)
+        player._create_player(self.cursor, self.db)
 
     def load_locations(self):
         self.cursor.execute("""
@@ -107,12 +106,25 @@ class Player:
 
     # Создаём персонажа и загружаем его в бд.
     #
-    def _create_player(self, cursor: sqlite3.Cursor):
+    def _create_player(self, cursor: sqlite3.Cursor, connection: sqlite3.Connection):
         cursor.execute("""
-                       INSERT INTO players (id, name, biography) VALUES (?, ?, ?)
+                       INSERT INTO players (id, name, biography) VALUES (?, ?, ?);
                        """,
                        (self.id, self.name, self.biography))
+        print(self.id, self.name, self.biography)
+        print("Успешно загружен")
+        connection.commit()
 
+    def setup_main_skills(self, cursor: sqlite3.Cursor, connection: sqlite3.Connection):
+        temp = [self.id]
+        for i in self.main_skills.values():
+            temp.append(i)
+        print(temp)
+        cursor.execute("""
+                       INSERT INTO main_skills (player_id, physical, intelligence, perception, charisma)
+                       VALUES (?, ?, ?, ?, ?);
+                       """, tuple(temp))
+        connection.commit()
     # Загружаем персонажа из базы данных
     def load_player(self, cursor: sqlite3.Cursor):
         # Подгружаем состояние персонажа

@@ -18,10 +18,6 @@ dp = Dispatcher(bot, storage=storage)
 player = Player()
 game = Game()
 
-kb = types.ReplyKeyboardMarkup(resize_keyboard=True)
-kb.add(types.InlineKeyboardButton(text="Создать персонажа"))
-
-
 
 class Form(StatesGroup):
     name = State()
@@ -33,6 +29,14 @@ class MainSkillsForm(StatesGroup):
     intelligence = State()
     perception = State()
     charisma = State()
+
+
+class AddSkillsForm(StatesGroup):
+    attack = State()
+    partisan = State()
+    physics = State()
+    crafting = State()
+    stability = State()
 
 
 def check_player(id: int) -> bool:
@@ -48,12 +52,11 @@ def check_player(id: int) -> bool:
 
 @dp.message_handler(commands=['start'])
 async def send_welcome(msg: types.Message):
-    if not msg.from_user.id == ADMIN:
-        await msg.answer("Здравствуй, Гейммастер")
-    else:
-        if not check_player(msg.from_user.id):
-            await msg.answer(START_MSG)
-            await Form.name.set()
+    # if not msg.from_user.id == ADMIN:
+    #     await msg.answer("Здравствуй, Гейммастер")
+    # else:
+    await msg.answer(START_MSG)
+    await Form.name.set()
 
 
 @dp.message_handler(state=Form.name)
@@ -73,11 +76,8 @@ async def process_biography(msg: types.Message, state: FSMContext):
                                  md.text("Если вы совершили ошибку - введите команду /start ещё раз."),
                                  md.text("Иначе введите команду /next для распределения навыков."), sep='\n'),
                          parse_mode=ParseMode.MARKDOWN)
+        game.create_player(msg.from_user.id, data["name"], data["biography"], player)
     await state.finish()
-
-
-@dp.message_handler(commands=['next'])
-async def setup_main_skills(msg: types.Message):
     await msg.answer(MAIN_SKILLS_MSG_0, parse_mode=types.ParseMode.HTML)
     for i in range(len(MAIN_SKILLS_MSGS)):
         await msg.answer(MAIN_SKILLS_MSGS[i], parse_mode=types.ParseMode.MARKDOWN)
@@ -116,7 +116,13 @@ async def process_perception(msg: types.Message, state: FSMContext):
 async def process_charisma(msg: types.Message, state: FSMContext):
     await state.update_data(charisma=int(msg.text))
     async with state.proxy() as data:
+        player.main_skills["Физподготовка"] = data["physics"]
+        player.main_skills["Интеллект"] = data["intelligence"]
+        player.main_skills["Восприятие"] = data["perception"]
+        player.main_skills["Харизма"] = data["charisma"]
+        player.setup_main_skills(game.cursor, game.db)
         await msg.reply(md.text(data["physics"], data["intelligence"], data["perception"], data["charisma"]))
+
 
 @dp.message_handler(commands=['return'])
 async def return_player(msg: types.Message):
