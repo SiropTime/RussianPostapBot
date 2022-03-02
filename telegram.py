@@ -4,6 +4,7 @@ from aiogram.types import ParseMode
 from aiogram.utils import executor
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
+from keyboards import *
 from emoji import emojize
 import aiogram.utils.markdown as md
 
@@ -32,11 +33,7 @@ class MainSkillsForm(StatesGroup):
 
 
 class AddSkillsForm(StatesGroup):
-    attack = State()
-    partisan = State()
-    physics = State()
-    crafting = State()
-    stability = State()
+    choosing = State()
 
 
 def check_player(id: int) -> bool:
@@ -121,7 +118,16 @@ async def process_charisma(msg: types.Message, state: FSMContext):
         player.main_skills["Восприятие"] = data["perception"]
         player.main_skills["Харизма"] = data["charisma"]
         player.setup_main_skills(game.cursor, game.db)
-        await msg.reply(md.text(data["physics"], data["intelligence"], data["perception"], data["charisma"]))
+        await msg.reply(md.text(md.bold(emojize("Ваши основные навыки:")),
+                                md.text(emojize(":muscle: ***Физподготовка***:", data["physics"])),
+                                md.text(emojize(":brain: ***Интеллект***:", data["intelligence"])),
+                                md.text(emojize(":eyes: ***Восприятие***:", data["perception"])),
+                                md.text(emojize(":bust_in_silhouette: ***Харизма***:", data["charisma"])),
+                                sep="\n"), types.ParseMode.MARKDOWN)
+        await msg.reply(md.text("Отлично! Теперь распределим твои дополнительные навыки, умения.",
+                                "Учти, что ты можешь выбрать ***всего 5 навыков***, которые",
+                                "будут лучше прокачаны изначально и будут развивать лучше",
+                                "в будущеи.", sep=" "), reply_markup=add_skills_kb)
 
 
 @dp.message_handler(commands=['return'])
