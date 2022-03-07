@@ -152,7 +152,9 @@ async def process_add_skills(callback_query: types.CallbackQuery):
                 await callback_query.answer(text="Выберите 5 навыков!", show_alert=True)
             else:
                 await callback_query.message.edit_text("Успешно!")
+                player.priority_skills = priority_skills
     print(priority_skills)
+
     await callback_query.message.edit_reply_markup(reply_markup=add_skills_kb)
     await callback_query.answer()
 

@@ -1,6 +1,7 @@
 import sqlite3
 from sqlite3 import Error
 from game_utils import *
+from random import randint
 
 
 class Game:
@@ -91,6 +92,7 @@ class Player:
                            "Кожевничество": 0, "Строительство": 0,
                            "Технические знания": 0, "Психологическая устойчивость": 0,
                            "Сила": 0, "Ловкость": 0, "Выносливость": 0}
+        self.priority_skills = []
         self.status = {"Голова": 100, "Грудь": 100, "Живот": 100,
                        "Левая рука": 100, "Правая рука": 100,
                        "Левая нога": 100, "Правая нога": 100,
@@ -136,6 +138,11 @@ class Player:
         self._load_main_skills(cursor, self.id)
         self._load_add_skills(cursor, self.id)
 
+    # Расчёт дополнительных навыков
+    def calculate_skills(self):
+        self._calculate_physics()
+        self._calculate_intelligence()
+
     def create_player(self):
         pass
 
@@ -143,6 +150,26 @@ class Player:
     #
     #
     # Вспомогательные функции для создания декомпозиции
+    def _calculate_physics(self):
+        self.add_skills["Выносливость"] = int((randint(1000, 3500)*0.001) * self.main_skills["Физподготовка"])
+        self.add_skills["Ловкость"] = int((randint(1000, 3500)*0.001) * self.main_skills["Физподготовка"])
+        self.add_skills["Сила"] = int((randint(1000, 3500)*0.001) * self.main_skills["Физподготовка"])
+        self.add_skills["Боевые искусства"] = int(3 * self.main_skills["Физподготовка"] + 1.5 * self.main_skills["Восприятие"])
+        self.add_skills["Устойчивость"] = int(2.5 * self.main_skills["Физподготовка"] + 2 * self.add_skills["Выносливость"])
+        for k in self.add_skills.keys():
+            if k == "Огнестрельное оружие":
+                break
+            self.add_skills[k] = 2 * self.main_skills["Физподготовка"] + 3 * self.add_skills["Боевые искусства"]
+
+    def _calculate_intelligence(self):
+        self.add_skills["Взрывчатка"] = int(1.25 * self.main_skills["Интеллект"])
+        self.add_skills["Ловушки"] = int(1.25 * self.main_skills["Интеллект"])
+        self.add_skills["Красноречие"] = int(1.8 * self.main_skills["Интеллект"] + 2.15 * self.main_skills["Харизма"])
+        self.add_skills["Общая эрудиция"] = int(4 * self.main_skills["Интеллект"])
+        self.main_skills["Медицина"] = int(2 * self.main_skills["Интеллект"] + 1.5 * self.add_skills["Общая эрудиция"])
+
+    def _calculate_perception(self):
+        self.add_skills["Скрытность"] = int(2.2 * self.main_skills["Восприятие"] + 1.5 * self.add_skills["Ловкость"])
 
     def _load_player(self, cursor: sqlite3.Cursor):
         cursor.execute("""
