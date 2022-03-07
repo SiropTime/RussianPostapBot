@@ -24,6 +24,7 @@ player = Player()
 game = Game()
 priority_skills = []
 
+
 class Form(StatesGroup):
     name = State()
     biography = State()
@@ -40,6 +41,11 @@ class AddSkillsForm(StatesGroup):
     choosing = State()
 
 
+class Menu(StatesGroup):
+    main = State()
+    profile = State()
+
+
 def check_player(id: int) -> bool:
     res = False
     for i in range(len(game.players)):
@@ -49,6 +55,18 @@ def check_player(id: int) -> bool:
         else:
             res = False
     return res
+
+
+@dp.message_handler(commands=['return'])
+async def return_player(msg: types.Message):
+    player.id = msg.from_user.id
+    player.load_player(game.cursor)
+
+
+@dp.message_handler(commands=['menu'])
+async def menu(msg: types.Message):
+    await msg.answer("Меню", reply_markup=main_menu_kb)
+    await Menu.main.set()
 
 
 @dp.message_handler(commands=['start'])
@@ -123,10 +141,10 @@ async def process_charisma(msg: types.Message, state: FSMContext):
         player.main_skills["Харизма"] = data["charisma"]
         player.setup_main_skills(game.cursor, game.db)
         await msg.reply(md.text(md.bold(emojize("Ваши основные навыки:")),
-                                md.text(emojize(":muscle: ***Физподготовка***:"), data["physics"]),
-                                md.text(emojize(":brain: ***Интеллект***:"), data["intelligence"]),
-                                md.text(emojize(":eyes: ***Восприятие***:"), data["perception"]),
-                                md.text(emojize(":bust_in_silhouette: ***Харизма***:"), data["charisma"]),
+                                md.text(emojize(":muscle: ***Физподготовка***:", use_aliases=True), data["physics"]),
+                                md.text(emojize(":brain: ***Интеллект***:", use_aliases=True), data["intelligence"]),
+                                md.text(emojize(":eyes: ***Восприятие***:", use_aliases=True), data["perception"]),
+                                md.text(emojize(":bust_in_silhouette: ***Харизма***:", use_aliases=True), data["charisma"]),
                                 sep="\n"), parse_mode=types.ParseMode.MARKDOWN)
         await msg.reply(md.text("Отлично! Теперь распределим твои дополнительные навыки, умения.",
                                 "Учти, что ты можешь выбрать ***всего 5 навыков***, которые",
@@ -153,14 +171,19 @@ async def process_add_skills(callback_query: types.CallbackQuery):
             else:
                 await callback_query.message.edit_text("Успешно!")
                 player.priority_skills = priority_skills
+                player.calculate_skills(game.cursor, game.db)
+                print(player.add_skills)
+                await Menu.main.set()
+                await bot.send_message(player.id, "Меню", reply_markup=main_menu_kb)
+
     print(priority_skills)
 
     await callback_query.message.edit_reply_markup(reply_markup=add_skills_kb)
     await callback_query.answer()
 
 
-@dp.message_handler(commands=['return'])
-async def return_player(msg: types.Message):
+@dp.message_handler(state=Menu.main)
+async def main_menu(msg: types.Message, state: FSMContext):
     pass
 
 

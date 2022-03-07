@@ -57,3 +57,9 @@ MAIN_SKILLS_MSG_5 = md.text(emojize(_CHARISMA, use_aliases=True))
 
 MAIN_SKILLS_MSGS = [MAIN_SKILLS_MSG_1, MAIN_SKILLS_MSG_2, MAIN_SKILLS_MSG_3,
                     MAIN_SKILLS_MSG_4, MAIN_SKILLS_MSG_5]
+
+MENU_BUTTONS = [emojize(":arrow_up: Совершить действие", use_aliases=True),
+                emojize(":clipboard: Профиль", use_aliases=True),
+                emojize(":earth_asia: Местоположение", use_aliases=True),
+                emojize(":email: Отправить текст отыгрыша", use_aliases=True),
+                emojize(":package: Инвентарь", use_aliases=True)]
