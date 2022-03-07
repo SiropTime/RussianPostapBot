@@ -72,6 +72,7 @@ class Player:
         self.name = ""
         self.biography = ""
         self.inventory = []
+        self.money = 0
         self.main_skills = {"Физподготовка": 0,
                             "Интеллект": 0,
                             "Восприятие": 0,
@@ -125,9 +126,11 @@ class Player:
                        VALUES (?, ?, ?, ?, ?);
                        """, tuple(temp))
         connection.commit()
+
     # Загружаем персонажа из базы данных
     def load_player(self, cursor: sqlite3.Cursor):
         # Подгружаем состояние персонажа
+        self._load_player(cursor)
         self._load_status(cursor, self.id)
         self._load_inventory(cursor, self.id)
         self._load_main_skills(cursor, self.id)
@@ -140,6 +143,17 @@ class Player:
     #
     #
     # Вспомогательные функции для создания декомпозиции
+
+    def _load_player(self, cursor: sqlite3.Cursor):
+        cursor.execute("""
+                        SELECT * FROM players where id = ?;
+                        """, [self.id])
+        player = cursor.fetchone()
+        print(player)
+        self.name = player[1]
+        self.biography = player[2]
+        self.money = player[3]
+
     def _load_status(self, cursor: sqlite3.Cursor, id: int):
         cursor.execute("""
                                SELECT * FROM status where player_id = ?;
