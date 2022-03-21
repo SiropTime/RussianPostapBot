@@ -1,3 +1,8 @@
+from aiogram.dispatcher import FSMContext
+from aiogram.utils import markdown as md
+
+
+from instruments.utility import MAIN_SKILLS_MSG_0, MAIN_SKILLS_MSGS
 from telegram import *
 
 from aiogram.dispatcher.filters.state import StatesGroup, State

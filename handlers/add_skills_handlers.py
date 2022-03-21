@@ -1,5 +1,11 @@
+from contextlib import suppress
+
+from aiogram.utils.exceptions import MessageNotModified
+
+from instruments.keyboards import button_list, main_menu_kb, add_skills_kb
 from telegram import *
 from handlers.menu_handler import Menu
+
 
 class AddSkillsForm(StatesGroup):
     choosing = State()

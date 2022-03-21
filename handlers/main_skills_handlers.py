@@ -1,3 +1,6 @@
+from emoji import emojize
+
+from instruments.keyboards import add_skills_kb
 from telegram import *
 
 
