@@ -1,7 +1,11 @@
 import sqlite3
 from sqlite3 import Error
+
+from emoji import emojize
+
 from game_utils import *
 from random import randint
+import aiogram.utils.markdown as md
 
 
 class Game:
@@ -99,6 +103,21 @@ class Player:
                        "Психологическая устойчивость": 100,
                        "Выносливость": 600, "Кровь": 4600}
 
+    # Подготовка всех данных для вывода профиля
+    def prepare_profile(self):
+        main_chars_msg = md.text(md.underline(emojize(":clipboard: ***Профиль***", use_aliases=True)),
+                                 "***Основные характеристики***:",
+                                 emojize(":muscle: Физподготовка" + str(self.main_skills["Физподготовка"]), use_aliases=True),
+                                 emojize(":brain: Интеллект" + str(self.main_skills["Интеллект"]), use_aliases=True),
+                                 emojize(":eyes: Восприятие" + str(self.main_skills["Восприятие"]), use_aliases=True),
+                                 emojize(":bust_in_silhouette: Харизма" + str(self.main_skills["Харизма"]), use_aliases=True),
+                                 sep="\n")
+        add_chars_msg = "Дополнительные характеристики\n"
+        for k, v in self.add_skills.items():
+            add_chars_msg += k + ": " + str(v)
+
+        return [main_chars_msg, add_chars_msg]
+
     # Добавление предмета в базу данных инвентаря
     def add_item_to_inventory(self, cursor: sqlite3.Cursor, item: Item):
         self.inventory.append(item)
@@ -143,7 +162,8 @@ class Player:
         self._calculate_physics()
         self._calculate_intelligence()
         self._calculate_perception()
-        self.add_skills["Психологическая устойчивость"] = int(0.9 * self.add_skills["Устойчивость"] + 2 * self.main_skills["Интеллект"])
+        self.add_skills["Психологическая устойчивость"] = int(
+            0.9 * self.add_skills["Устойчивость"] + 2 * self.main_skills["Интеллект"])
         for skill in self.priority_skills:
             self.add_skills[skill] = int(self.add_skills[skill] * 1.25)
         cursor.execute("""
@@ -159,11 +179,13 @@ class Player:
     #
     # Вспомогательные функции для создания декомпозиции
     def _calculate_physics(self):
-        self.add_skills["Выносливость"] = int((randint(1000, 3500)*0.001) * self.main_skills["Физподготовка"])
-        self.add_skills["Ловкость"] = int((randint(1000, 3500)*0.001) * self.main_skills["Физподготовка"])
-        self.add_skills["Сила"] = int((randint(1000, 3500)*0.001) * self.main_skills["Физподготовка"])
-        self.add_skills["Боевые искусства"] = int(3 * self.main_skills["Физподготовка"] + 1.5 * self.main_skills["Восприятие"])
-        self.add_skills["Устойчивость"] = int(2.5 * self.main_skills["Физподготовка"] + 2 * self.add_skills["Выносливость"])
+        self.add_skills["Выносливость"] = int((randint(1000, 3500) * 0.001) * self.main_skills["Физподготовка"])
+        self.add_skills["Ловкость"] = int((randint(1000, 3500) * 0.001) * self.main_skills["Физподготовка"])
+        self.add_skills["Сила"] = int((randint(1000, 3500) * 0.001) * self.main_skills["Физподготовка"])
+        self.add_skills["Боевые искусства"] = int(
+            3 * self.main_skills["Физподготовка"] + 1.5 * self.main_skills["Восприятие"])
+        self.add_skills["Устойчивость"] = int(
+            2.5 * self.main_skills["Физподготовка"] + 2 * self.add_skills["Выносливость"])
         for k in self.add_skills.keys():
             if k == "Огнестрельное оружие":
                 break
@@ -176,10 +198,14 @@ class Player:
         self.add_skills["Общая эрудиция"] = int(4 * self.main_skills["Интеллект"])
         self.add_skills["Медицина"] = int(2 * self.main_skills["Интеллект"] + 1.5 * self.add_skills["Общая эрудиция"])
         self.add_skills["Ремесло"] = int(randint(1000, 3100) * 0.001 * self.main_skills["Интеллект"])
-        self.add_skills["Кузнечество"] = int(randint(1000, 3100) * 0.001 * self.main_skills["Интеллект"] + 0.5 * self.add_skills["Ремесло"])
-        self.add_skills["Кожевничество"] = int(randint(1000, 3100) * 0.001 * self.main_skills["Интеллект"] + 0.5 * self.add_skills["Ремесло"])
-        self.add_skills["Строительство"] = int(randint(1000, 3100) * 0.001 * self.main_skills["Интеллект"] + 0.75 * self.main_skills["Физподготовка"])
-        self.add_skills["Технические знания"] = int(randint(1000, 3100) * 0.001 * self.main_skills["Интеллект"] + 0.5 * self.add_skills["Общая эрудиция"])
+        self.add_skills["Кузнечество"] = int(
+            randint(1000, 3100) * 0.001 * self.main_skills["Интеллект"] + 0.5 * self.add_skills["Ремесло"])
+        self.add_skills["Кожевничество"] = int(
+            randint(1000, 3100) * 0.001 * self.main_skills["Интеллект"] + 0.5 * self.add_skills["Ремесло"])
+        self.add_skills["Строительство"] = int(
+            randint(1000, 3100) * 0.001 * self.main_skills["Интеллект"] + 0.75 * self.main_skills["Физподготовка"])
+        self.add_skills["Технические знания"] = int(
+            randint(1000, 3100) * 0.001 * self.main_skills["Интеллект"] + 0.5 * self.add_skills["Общая эрудиция"])
 
     def _calculate_perception(self):
         self.add_skills["Скрытность"] = int(2.2 * self.main_skills["Восприятие"] + 1.5 * self.add_skills["Ловкость"])
@@ -187,7 +213,8 @@ class Player:
         self.add_skills["Луки и арбалеты"] = int(2 * self.main_skills["Восприятие"] + self.add_skills["Ловкость"])
         self.add_skills["Взлом"] = int(1.6 * self.main_skills["Восприятие"] + 2 * self.main_skills["Интеллект"])
         self.add_skills["Кража"] = int(2.2 * self.main_skills["Восприятие"] + 1.35 * self.main_skills["Интеллект"])
-        self.add_skills["Метательное оружие"] = int(1.2 * self.main_skills["Восприятие"] + 1.7 * self.add_skills["Боевые искусства"])
+        self.add_skills["Метательное оружие"] = int(
+            1.2 * self.main_skills["Восприятие"] + 1.7 * self.add_skills["Боевые искусства"])
 
     def _load_player(self, cursor: sqlite3.Cursor):
         cursor.execute("""

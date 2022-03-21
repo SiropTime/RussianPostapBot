@@ -15,7 +15,7 @@ P.S. Если у тебя уже есть персонаж, введи кома�
 MAIN_SKILLS_MSG_0 = md.text(
     md.text("Теперь необходимо распределить основные навыки вашего персонажа."),
     md.text("Для большего понимания ролевой системой можете ознакомиться со страницой на"),
-    md.text(md.hlink("Notion","https://lucky-nutmeg-f9f.notion.site/4-0-4263657f00e34e7fbb9de3859dae6bd3"))
+    md.text(md.hlink("Notion", "https://lucky-nutmeg-f9f.notion.site/4-0-4263657f00e34e7fbb9de3859dae6bd3"))
 )
 
 _PHYSICS = '''
@@ -63,3 +63,4 @@ MENU_BUTTONS = [emojize(":arrow_up: Совершить действие", use_al
                 emojize(":earth_asia: Местоположение", use_aliases=True),
                 emojize(":email: Отправить текст отыгрыша", use_aliases=True),
                 emojize(":package: Инвентарь", use_aliases=True)]
+
