@@ -1,5 +1,5 @@
 from telegram import *
-
+from handlers.menu_handler import Menu
 
 class AddSkillsForm(StatesGroup):
     choosing = State()

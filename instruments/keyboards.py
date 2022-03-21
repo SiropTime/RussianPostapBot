@@ -1,6 +1,6 @@
 import game
 from aiogram import types
-from utility import MENU_BUTTONS
+from instruments.utility import MENU_BUTTONS
 
 add_skills_kb = types.InlineKeyboardMarkup(row_width=3)
 

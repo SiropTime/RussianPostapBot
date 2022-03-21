@@ -1,5 +1,15 @@
 from telegram import *
+
+from aiogram.dispatcher.filters.state import StatesGroup, State
+from aiogram.types import ParseMode
+from aiogram import types
+
 from handlers.main_skills_handlers import MainSkillsForm
+
+
+class Form(StatesGroup):
+    name = State()
+    biography = State()
 
 
 @dp.message_handler(state=Form.name)
