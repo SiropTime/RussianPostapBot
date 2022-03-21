@@ -38,15 +38,9 @@ class Item:
         return self.name + " " + self.description + " " + str(self.quantity)
 
 
-class RolePlayHelper:
-    def __init__(self):
-        pass
-
-    # Проверка навыка, бонусы - сумма всех баффов и дебаффов, скилл - уровень навыка
-    # Лимит - максимальный предел проверки
-    def check_skill(self, bonuses: int, skill: int, limit: list) -> bool:
-        if type is None:
-            if randint(limit[0], limit[1]) < skill + bonuses:
-                return True
-            else:
-                return False
+def check_skill(skill: int, bonuses=0, limit=(-5, 105)) -> bool:
+    if type is None:
+        if randint(limit[0], limit[1]) < skill + bonuses:
+            return True
+        else:
+            return False

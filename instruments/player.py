@@ -1,3 +1,6 @@
+from emoji import emojize
+from aiogram.utils import markdown as md
+
 from game import *
 
 
@@ -104,7 +107,8 @@ class Player:
     # Приватные методы
     #
     #
-    # Вспомогательные функции для создания декомпозиции
+
+    # Расчёт навыков, преимущественно связанных с Физподготовкой
     def _calculate_physics(self):
         self.add_skills["Выносливость"] = int((randint(1000, 3500) * 0.001) * self.main_skills["Физподготовка"])
         self.add_skills["Ловкость"] = int((randint(1000, 3500) * 0.001) * self.main_skills["Физподготовка"])
@@ -118,6 +122,7 @@ class Player:
                 break
             self.add_skills[k] = int(2 * self.main_skills["Физподготовка"] + 1.4 * self.add_skills["Боевые искусства"])
 
+    # Расчёт навыков, преимущественно связанных с интеллектом
     def _calculate_intelligence(self):
         self.add_skills["Взрывчатка"] = int(1.25 * self.main_skills["Интеллект"])
         self.add_skills["Ловушки"] = int(1.25 * self.main_skills["Интеллект"])
@@ -134,6 +139,7 @@ class Player:
         self.add_skills["Технические знания"] = int(
             randint(1000, 3100) * 0.001 * self.main_skills["Интеллект"] + 0.5 * self.add_skills["Общая эрудиция"])
 
+    # Расчёт навыков, преимущественно связанных с восприятием
     def _calculate_perception(self):
         self.add_skills["Скрытность"] = int(2.2 * self.main_skills["Восприятие"] + 1.5 * self.add_skills["Ловкость"])
         self.add_skills["Огнестрельное оружие"] = int(1.75 * self.main_skills["Восприятие"])
@@ -143,6 +149,7 @@ class Player:
         self.add_skills["Метательное оружие"] = int(
             1.2 * self.main_skills["Восприятие"] + 1.7 * self.add_skills["Боевые искусства"])
 
+    # Методы для загрузки данных из БД
     def _load_player(self, cursor: sqlite3.Cursor):
         cursor.execute("""
                         SELECT * FROM players where id = ?;
