@@ -66,6 +66,9 @@ class Player:
                        INSERT INTO players (id, name, biography) VALUES (?, ?, ?);
                        """,
                        (self.id, self.name, self.biography))
+        cursor.execute("""
+                       INSERT INTO status VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+                       """, (self.id, 100, 100, 100, 100, 100, 100, 100, 100, 600, 4600))
         print(self.id, self.name, self.biography)
         print("Успешно загружен")
         connection.commit()
@@ -160,6 +163,7 @@ class Player:
         self.biography = player[2]
         self.money = player[3]
 
+    # Загрузка состояния персонажа из БД
     def _load_status(self, cursor: sqlite3.Cursor, id: int):
         cursor.execute("""
                                SELECT * FROM status where player_id = ?;
@@ -175,6 +179,7 @@ class Player:
         print(self.status)
         print("Завершена загрузка состояния персонажа с id:", id)
 
+    # Загрузка инвентаря из БД
     def _load_inventory(self, cursor: sqlite3.Cursor, id: int):
         cursor.execute("""
                                        SELECT * FROM inventory where player_id = ?;
@@ -191,6 +196,7 @@ class Player:
         print(self.inventory)
         print("Завершена загрузка инвентаря персонажа с id:", id)
 
+    # Загрузка основных навыков из БД
     def _load_main_skills(self, cursor: sqlite3.Cursor, id: int):
         cursor.execute("""
                                                SELECT * FROM main_skills where player_id = ?;
@@ -206,6 +212,7 @@ class Player:
         print(self.main_skills)
         print("Завершена загрузка основных навыков персонажа с id:", id)
 
+    # Загрузка дополнительных навыков БД
     def _load_add_skills(self, cursor: sqlite3.Cursor, id: int):
         cursor.execute("""
                                                        SELECT * FROM add_skill where player_id = ?;

@@ -10,13 +10,13 @@ class Game:
         self.locations = []
         self.animals = []
         self.players = {}
-        self.helper = RolePlayHelper()
+        # self.helper = RolePlayHelper()
 
         try:
             self.db = sqlite3.connect("data.db")
-            print("Connection to SQLite DB successful")
+            print("Соединение с базой данных произошло успешно!")
         except Error as e:
-            print(f"The error '{e}' occurred")
+            print(f"При присоединении к БД произошла ошибка: '{e}'.")
 
         self.cursor = self.db.cursor()
         self.load_locations()
@@ -62,5 +62,5 @@ class GameMaster:
         pass
 
 
-if __name__ == "__main__":
-    game = Game()
+# if __name__ == "__main__":
+#     game = Game()

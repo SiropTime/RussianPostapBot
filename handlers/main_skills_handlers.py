@@ -1,7 +1,13 @@
+from aiogram import types
+from aiogram.dispatcher import FSMContext
+from aiogram.dispatcher.filters.state import StatesGroup
+from aiogram.dispatcher.filters.state import State
 from emoji import emojize
+from aiogram.utils import markdown as md
 
+from handlers.add_skills_handlers import AddSkillsForm
 from instruments.keyboards import add_skills_kb
-from telegram import *
+from telegram import dp, player, game
 
 
 class MainSkillsForm(StatesGroup):
@@ -63,3 +69,4 @@ async def process_charisma(msg: types.Message, state: FSMContext):
                                 "в будущеи.", sep=" "), reply_markup=add_skills_kb,
                         parse_mode=types.ParseMode.MARKDOWN)
         await state.finish()
+        await AddSkillsForm.choosing.set()

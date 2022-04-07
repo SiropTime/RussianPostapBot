@@ -1,8 +1,11 @@
+from aiogram import types
 from aiogram.dispatcher import FSMContext
+from aiogram.types import ParseMode
 from emoji import emojize
+from aiogram.dispatcher.filters.state import StatesGroup, State
 
 from instruments.keyboards import main_menu_kb
-from telegram import *
+from telegram import dp, player
 
 
 class Menu(StatesGroup):
