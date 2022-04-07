@@ -1,7 +1,10 @@
+import sqlite3
+from random import randint
+
 from emoji import emojize
 from aiogram.utils import markdown as md
 
-from game import *
+from instruments.game_utils import Item
 
 
 class Player:
@@ -86,7 +89,11 @@ class Player:
 
     # Загружаем персонажа из базы данных
     def load_player(self, cursor: sqlite3.Cursor):
-        # Подгружаем состояние персонажа
+        """
+        Функция загрузки всех данных персонажа из базы данных
+        :param cursor: Курсор, связанный с нашей базой данных
+        :return: None
+        """
         self._load_player(cursor)
         self._load_status(cursor, self.id)
         self._load_inventory(cursor, self.id)
@@ -95,6 +102,12 @@ class Player:
 
     # Расчёт дополнительных навыков
     def calculate_skills(self, cursor: sqlite3.Cursor, conn: sqlite3.Connection):
+        """
+        Расчёт дополнительных навыков на базе основных навыков
+        :param cursor: Курсор, подключённый к БД
+        :param conn: Объект БД SQLite
+        :return: None
+        """
         self._calculate_physics()
         self._calculate_intelligence()
         self._calculate_perception()

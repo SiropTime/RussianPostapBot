@@ -2,8 +2,10 @@ from aiogram import Bot, Dispatcher
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.utils import executor
 from aiogram import types
-from instruments.player import Player, Game
-from instruments.utility import START_MSG, TOKEN
+
+from instruments.player import Player
+from game import Game
+from instruments.utility import TOKEN
 
 bot = Bot(token=TOKEN)
 storage = MemoryStorage()

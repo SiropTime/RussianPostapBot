@@ -36,7 +36,7 @@ async def process_biography(msg: types.Message, state: FSMContext):
         await msg.answer(md.text(md.text("Ваше имя: ", md.bold(data['name'])),
                                  md.text("Ваша биография: ", data['biography']),
                                  md.text("Если вы совершили ошибку - введите команду /start ещё раз."),
-                                 md.text("Иначе введите команду /next для распределения навыков."), sep='\n'),
+                                 sep='\n'),
                          parse_mode=ParseMode.MARKDOWN)
         game.create_player(msg.from_user.id, data["name"], data["biography"], player)
     await state.finish()

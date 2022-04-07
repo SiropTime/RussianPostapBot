@@ -8,9 +8,9 @@ from aiogram.utils.exceptions import MessageNotModified
 from instruments.keyboards import button_list, main_menu_kb, add_skills_kb
 from handlers.menu_handler import Menu
 
-# Приоритетные навыки, выбранные пользователем
 from telegram import dp, player, game, bot
 
+# Приоритетные навыки, выбранные пользователем
 priority_skills = []
 
 
@@ -26,7 +26,7 @@ async def process_add_skills(callback_query: types.CallbackQuery, state = FSMCon
                 await callback_query.answer(text="Вы уже выбрали 5 навыков! Уберите уже выбранные для изменения!",
                                             show_alert=True)
             else:
-                button_list[callback_query.data].text = "✓ " + button_list[callback_query.data].text
+                button_list[callback_query.data].text = "☑ " + button_list[callback_query.data].text
                 priority_skills.append(callback_query.data)
         elif callback_query.data in priority_skills:
             button_list[callback_query.data].text = button_list[callback_query.data].text[2:]
