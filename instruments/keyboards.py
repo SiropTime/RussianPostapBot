@@ -1,4 +1,3 @@
-import game
 from aiogram import types
 
 from instruments.player import Player

@@ -1,3 +1,5 @@
+from telegram import dp
+
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import StatesGroup
@@ -7,7 +9,7 @@ from aiogram.utils import markdown as md
 
 from handlers.add_skills_handlers import AddSkillsForm
 from instruments.keyboards import add_skills_kb
-from telegram import dp, player, game
+from telegram import player, game
 
 
 class MainSkillsForm(StatesGroup):

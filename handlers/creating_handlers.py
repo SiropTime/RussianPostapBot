@@ -1,24 +1,14 @@
+from telegram import dp
+
 from aiogram.dispatcher import FSMContext
 from aiogram.utils import markdown as md
-from aiogram.dispatcher.filters.state import StatesGroup, State
+# from aiogram.dispatcher.filters.state import StatesGroup, State
 from aiogram.types import ParseMode
 from aiogram import types
 
-from instruments.utility import MAIN_SKILLS_MSG_0, MAIN_SKILLS_MSGS, START_MSG
-from telegram import dp, game, player
-
 from handlers.main_skills_handlers import MainSkillsForm
-
-
-class Form(StatesGroup):
-    name = State()
-    biography = State()
-
-
-@dp.message_handler(commands=['start'])
-async def send_welcome(msg: types.Message):
-    await msg.answer(START_MSG)
-    await Form.name.set()
+from instruments.utility import MAIN_SKILLS_MSG_0, MAIN_SKILLS_MSGS, START_MSG
+from telegram import game, player, Form
 
 
 @dp.message_handler(state=Form.name)
