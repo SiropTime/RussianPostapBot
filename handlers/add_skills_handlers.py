@@ -8,7 +8,6 @@ from aiogram.dispatcher.filters.state import StatesGroup, State
 from aiogram.utils.exceptions import MessageNotModified
 
 from instruments.keyboards import button_list, main_menu_kb, add_skills_kb
-from handlers.menu_handler import Menu
 
 from telegram import player, game, bot
 
@@ -28,7 +27,7 @@ async def process_add_skills(callback_query: types.CallbackQuery, state=FSMConte
                 await callback_query.answer(text="Вы уже выбрали 5 навыков! Уберите уже выбранные для изменения!",
                                             show_alert=True)
             else:
-                button_list[callback_query.data].text = "|-/ " + button_list[callback_query.data].text
+                button_list[callback_query.data].text = "☑ " + button_list[callback_query.data].text
                 priority_skills.append(callback_query.data)
         elif callback_query.data in priority_skills:
             button_list[callback_query.data].text = button_list[callback_query.data].text[2:]
@@ -42,7 +41,7 @@ async def process_add_skills(callback_query: types.CallbackQuery, state=FSMConte
                 player.calculate_skills(game.cursor, game.db)
                 print(player.add_skills)
                 await state.finish()
-                await Menu.main.set()
+                # await Menu.main.set()
                 await bot.send_message(player.id, "Меню", reply_markup=main_menu_kb)
 
     print(priority_skills)

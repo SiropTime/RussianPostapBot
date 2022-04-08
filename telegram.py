@@ -25,6 +25,7 @@ async def send_welcome(msg: types.Message):
     await msg.answer(START_MSG)
     await Form.name.set()
 
+
 def check_player(id: int) -> bool:
     res = False
     for i in range(len(game.players)):
@@ -48,6 +49,8 @@ __all__ = ["dp", "bot", "game", "player"]
 
 if __name__ == "__main__":
     from handlers import dp
-    executor.start_polling(dp, skip_updates=True)
-    player.load_player(game.cursor)
+    # player.load_player(game.cursor)
     print(player.main_skills, player.add_skills)
+    executor.start_polling(dp, skip_updates=True)
+
+

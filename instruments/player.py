@@ -41,16 +41,16 @@ class Player:
 
     # Подготовка всех данных для вывода профиля
     def prepare_profile(self):
-        main_chars_msg = md.text(md.underline(emojize(":clipboard: ***Профиль***", use_aliases=True)),
-                                 "***Основные характеристики***:",
-                                 emojize(":muscle: Физподготовка" + str(self.main_skills["Физподготовка"]), use_aliases=True),
-                                 emojize(":brain: Интеллект" + str(self.main_skills["Интеллект"]), use_aliases=True),
-                                 emojize(":eyes: Восприятие" + str(self.main_skills["Восприятие"]), use_aliases=True),
-                                 emojize(":bust_in_silhouette: Харизма" + str(self.main_skills["Харизма"]), use_aliases=True),
+        main_chars_msg = md.text(
+                                 emojize(":large_blue_diamond: ***Основные характеристики***:", use_aliases=True),
+                                 emojize("   :muscle: Физподготовка: " + str(self.main_skills["Физподготовка"]), use_aliases=True),
+                                 emojize("   :brain: Интеллект: " + str(self.main_skills["Интеллект"]), use_aliases=True),
+                                 emojize("   :eyes: Восприятие: " + str(self.main_skills["Восприятие"]), use_aliases=True),
+                                 emojize("   :bust_in_silhouette: Харизма: " + str(self.main_skills["Харизма"]), use_aliases=True),
                                  sep="\n")
-        add_chars_msg = "Дополнительные характеристики\n"
+        add_chars_msg = emojize(":large_orange_diamond: ***Дополнительные характеристики***\n", use_aliases=True)
         for k, v in self.add_skills.items():
-            add_chars_msg += k + ": " + str(v)
+            add_chars_msg += emojize("   :small_orange_diamond: " + k + ": " + str(v) + "\n")
 
         return [main_chars_msg, add_chars_msg]
 
@@ -87,10 +87,9 @@ class Player:
                        """, tuple(temp))
         connection.commit()
 
-    # Загружаем персонажа из базы данных
     def load_player(self, cursor: sqlite3.Cursor):
         """
-        Функция загрузки всех данных персонажа из базы данных
+        Метод загрузки всех данных персонажа из базы данных. Реализует это через приватные методы
         :param cursor: Курсор, связанный с нашей базой данных
         :return: None
         """
@@ -100,7 +99,6 @@ class Player:
         self._load_main_skills(cursor, self.id)
         self._load_add_skills(cursor, self.id)
 
-    # Расчёт дополнительных навыков
     def calculate_skills(self, cursor: sqlite3.Cursor, conn: sqlite3.Connection):
         """
         Расчёт дополнительных навыков на базе основных навыков

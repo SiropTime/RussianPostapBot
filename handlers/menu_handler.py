@@ -1,4 +1,4 @@
-from telegram import dp
+from telegram import dp, game
 
 from aiogram import types
 from aiogram.dispatcher import FSMContext
@@ -18,15 +18,17 @@ class Menu(StatesGroup):
 @dp.message_handler(commands=['menu'])
 async def menu(msg: types.Message):
     await msg.answer("Меню", reply_markup=main_menu_kb)
-    await Menu.main.set()
+    # await Menu.main.set()
 
 
 @dp.message_handler()
 async def process_menu(msg: types.Message):
+    player.id = int(msg.from_user.id)
+    player.load_player(game.cursor)
     if msg.text == emojize(":clipboard: Профиль", use_aliases=True):
-        await msg.answer("Профиль", parse_mode=ParseMode.MARKDOWN)
-        await msg.answer(player.prepare_profile()[0])
-        await msg.answer(player.prepare_profile()[1])
+        await msg.answer(emojize(":clipboard: ***Профиль***: " + player.name), parse_mode=ParseMode.MARKDOWN)
+        await msg.answer(player.prepare_profile()[0], parse_mode=ParseMode.MARKDOWN)
+        await msg.answer(player.prepare_profile()[1], parse_mode=ParseMode.MARKDOWN)
 
 
 @dp.message_handler(state=Menu.main)
