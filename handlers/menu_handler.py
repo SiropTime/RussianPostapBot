@@ -29,6 +29,7 @@ async def process_menu(msg: types.Message):
         await msg.answer(emojize(":clipboard: ***Профиль***: " + player.name), parse_mode=ParseMode.MARKDOWN)
         await msg.answer(player.prepare_profile()[0], parse_mode=ParseMode.MARKDOWN)
         await msg.answer(player.prepare_profile()[1], parse_mode=ParseMode.MARKDOWN)
+        await msg.answer(player.prepare_profile()[2], parse_mode=ParseMode.MARKDOWN)
 
 
 @dp.message_handler(state=Menu.main)
