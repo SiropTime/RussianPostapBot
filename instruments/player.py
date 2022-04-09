@@ -114,6 +114,7 @@ class Player:
     def load_player(self, cursor: sqlite3.Cursor, game: Game):
         """
         Метод загрузки всех данных персонажа из базы данных. Реализует это через приватные методы
+        :param game: Объект Game, необходим для проверки локаций
         :param cursor: Курсор, связанный с нашей базой данных
         :return: None
         """
@@ -122,7 +123,7 @@ class Player:
         self._load_inventory(cursor)
         self._load_main_skills(cursor)
         self._load_add_skills(cursor)
-        print("Успешно завершена загрузка персонажа с id: ", self.id)
+        print("Успешно завершена загрузка персонажа с id:", self.id)
 
     def calculate_skills(self, cursor: sqlite3.Cursor, conn: sqlite3.Connection):
         """
@@ -225,9 +226,6 @@ class Player:
             self.status[stat] = status[i]
             i += 1
 
-        # print(self.status)
-        # print("Завершена загрузка состояния персонажа с id:", self.id)
-
     # Загрузка инвентаря из БД
     def _load_inventory(self, cursor: sqlite3.Cursor):
         self.inventory = []
@@ -235,7 +233,6 @@ class Player:
                                        SELECT * FROM inventory where player_id = ?;
                                        """, [self.id])
         inventory = cursor.fetchall()
-        print(inventory)
 
         for i in range(len(inventory)):
             item = Item()
@@ -244,8 +241,6 @@ class Player:
             item.description = inventory[i][3]
             item.is_usable = inventory[i][4]
             self.inventory.append(item)
-        # print(self.inventory)
-        # print("Завершена загрузка инвентаря персонажа с id:", self.id)
 
     # Загрузка основных навыков из БД
     def _load_main_skills(self, cursor: sqlite3.Cursor):
@@ -253,15 +248,11 @@ class Player:
                                                SELECT * FROM main_skills where player_id = ?;
                                                """, [self.id])
         main_skills = cursor.fetchone()
-        print(main_skills)
 
         i = 1
         for skill in self.main_skills.keys():
             self.main_skills[skill] = main_skills[i]
             i += 1
-
-        # print(self.main_skills)
-        # print("Завершена загрузка основных навыков персонажа с id:", self.id)
 
     # Загрузка дополнительных навыков БД
     def _load_add_skills(self, cursor: sqlite3.Cursor):
@@ -269,12 +260,8 @@ class Player:
                                                        SELECT * FROM add_skill where player_id = ?;
                                                        """, [self.id])
         add_skills = cursor.fetchone()
-        print(add_skills)
 
         i = 1
         for skill in self.add_skills.keys():
             self.add_skills[skill] = add_skills[i]
             i += 1
-
-        # print(self.add_skills)
-        # print("Завершена загрузка дополнительных навыков навыков персонажа с id:", self.id)

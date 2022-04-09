@@ -10,6 +10,8 @@ class Game:
         self.locations = []
         self.animals = []
         self.players = {}
+        self.journal = ""
+
         # self.helper = RolePlayHelper()
 
         try:
@@ -20,6 +22,7 @@ class Game:
 
         self.cursor = self.db.cursor()
         self.load_locations()
+        self.load_animals()
 
     def create_player(self, id: int, name: str, biography: str, player):
         player.id = id

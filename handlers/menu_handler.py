@@ -37,11 +37,21 @@ async def process_menu(msg: types.Message):
     if msg.text == emojize(":clipboard: Профиль", use_aliases=True):
         await msg.answer(emojize(":clipboard: ***Профиль***: " + player.name), parse_mode=ParseMode.MARKDOWN,
                          reply_markup=profile_kb)
+
     if msg.text == emojize(":earth_asia: Местоположение", use_aliases=True):
-        await msg.answer(emojize("Ваше :earth_asia: Местоположение: " + player.location.name,
+        await msg.answer(emojize("Ваше местоположение: :earth_asia: ***" + player.location.name + "***",
+                                 use_aliases=True),
+                         parse_mode=ParseMode.MARKDOWN)
+        await msg.answer(emojize(":scroll: ***Описание местоположения***: " + player.location.description,
                                  use_aliases=True),
                          parse_mode=ParseMode.MARKDOWN)
         await bot.send_location(msg.from_user.id, player.location.coordinates[0], player.location.coordinates[1])
+
+    if msg.text == emojize(":arrow_up: Совершить действие", use_aliases=True):
+        pass
+
+    if msg.text == emojize(":email: Отправить текст отыгрыша", use_aliases=True):
+        pass
 
     # Обработка выхода из всех подменю
     if msg.text == emojize(":leftwards_arrow_with_hook: Обратно в меню", use_aliases=True):
