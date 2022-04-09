@@ -48,10 +48,10 @@ async def process_menu(msg: types.Message):
         await bot.send_location(msg.from_user.id, player.location.coordinates[0], player.location.coordinates[1])
 
     if msg.text == emojize(":arrow_up: Совершить действие", use_aliases=True):
-        pass
+        await msg.answer(emojize(msg.text, use_aliases=True))
 
     if msg.text == emojize(":email: Отправить текст отыгрыша", use_aliases=True):
-        pass
+        await msg.answer(emojize(msg.text, use_aliases=True))
 
     # Обработка выхода из всех подменю
     if msg.text == emojize(":leftwards_arrow_with_hook: Обратно в меню", use_aliases=True):

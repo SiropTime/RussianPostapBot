@@ -209,10 +209,15 @@ class Player:
     def _get_location(self, loc_name: str, game: Game):
         for loc in game.locations:
             if loc_name == loc.name:
-                self.location = Location
+                self.location = loc
+                break
         else:
             print("У персонажа с id" + str(self.id) + " не указана локация, установлена стандартная")
             self.location = game.locations[3]  # Село Архангельское
+            game.cursor.execute("""
+                                UPDATE players SET location = ? WHERE id = ?;
+                                """, (self.location.name, self.id))
+            game.db.commit()
 
     # Загрузка состояния персонажа из БД
     def _load_status(self, cursor: sqlite3.Cursor):
