@@ -13,7 +13,7 @@ class Game:
         # self.helper = RolePlayHelper()
 
         try:
-            self.db = sqlite3.connect("data.db")
+            self.db = sqlite3.connect("data.db", check_same_thread=False)
             print("Соединение с базой данных произошло успешно!")
         except Error as e:
             print(f"При присоединении к БД произошла ошибка: '{e}'.")

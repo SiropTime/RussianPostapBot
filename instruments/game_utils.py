@@ -30,6 +30,7 @@ class Item:
         self.name = ""
         self.quantity = 0
         self.description = ""
+        self.is_usable = False
 
     def __str__(self):
         return self.name + " " + self.description + " " + str(self.quantity)

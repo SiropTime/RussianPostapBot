@@ -66,9 +66,9 @@ class Player:
     def add_item_to_inventory(self, cursor: sqlite3.Cursor, item: Item):
         self.inventory.append(item)
         cursor.execute("""
-                        INSERT INTO inventory (player_id, item, quantity, description) VALUES
-                        (?, ?, ?, ?)
-                        """, (self.id, item.name, item.quantity, item.description))
+                        INSERT INTO inventory (player_id, item, quantity, description, is_usable) VALUES
+                        (?, ?, ?, ?, ?)
+                        """, (self.id, item.name, item.quantity, item.description, item.is_usable))
 
     # Создаём персонажа и загружаем его в бд.
     #
