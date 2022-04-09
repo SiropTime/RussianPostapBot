@@ -61,7 +61,7 @@ class Player:
                                  sep="\n")
         add_chars_msg = emojize(":game_die: ***Дополнительные характеристики***\n\n", use_aliases=True)
         for k, v in self.add_skills.items():
-            add_chars_msg += emojize("   :small_orange_diamond: " + k + ": " + str(v) + "\n")
+            add_chars_msg += emojize("   :small_orange_diamond: ***" + k + "***: " + str(v) + "\n")
 
         inventory_msg = emojize(":handbag: ***Инвентарь***\n", use_aliases=True)
         for i in range(len(self.inventory)):
@@ -130,10 +130,14 @@ class Player:
         self._calculate_perception()
         self.add_skills["Психологическая устойчивость"] = int(
             0.9 * self.add_skills["Устойчивость"] + 2 * self.main_skills["Интеллект"])
+        for skill, value in self.add_skills.items():
+            self.add_skills[skill] = int(value * 0.6)
         for skill in self.priority_skills:
             self.add_skills[skill] = int(self.add_skills[skill] * 1.25)
+
         cursor.execute("""
-                        INSERT INTO add_skill VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+                        INSERT INTO add_skill VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 
+                        ?, ?, ?, ?, ?, ?, ?, ?);
                         """, tuple([self.id] + [s for s in self.add_skills.values()]))
         conn.commit()
 
@@ -153,7 +157,7 @@ class Player:
         for k in self.add_skills.keys():
             if k == "Огнестрельное оружие":
                 break
-            self.add_skills[k] = int(2 * self.main_skills["Физподготовка"] + 1.4 * self.add_skills["Боевые искусства"])
+            self.add_skills[k] = int((randint(10, 20) * 0.1) * self.main_skills["Физподготовка"] + 0.5 * self.add_skills["Боевые искусства"])
 
     # Расчёт навыков, преимущественно связанных с интеллектом
     def _calculate_intelligence(self):
@@ -161,7 +165,7 @@ class Player:
         self.add_skills["Ловушки"] = int(1.25 * self.main_skills["Интеллект"])
         self.add_skills["Красноречие"] = int(1.8 * self.main_skills["Интеллект"] + 2.15 * self.main_skills["Харизма"])
         self.add_skills["Общая эрудиция"] = int(4 * self.main_skills["Интеллект"])
-        self.add_skills["Медицина"] = int(2 * self.main_skills["Интеллект"] + 1.5 * self.add_skills["Общая эрудиция"])
+        self.add_skills["Медицина"] = int(1.5 * self.main_skills["Интеллект"] + 0.6 * self.add_skills["Общая эрудиция"])
         self.add_skills["Ремесло"] = int(randint(1000, 3100) * 0.001 * self.main_skills["Интеллект"])
         self.add_skills["Кузнечество"] = int(
             randint(1000, 3100) * 0.001 * self.main_skills["Интеллект"] + 0.5 * self.add_skills["Ремесло"])
@@ -238,7 +242,7 @@ class Player:
 
         i = 1
         for skill in self.main_skills.keys():
-            self.main_skills[skill] = main_skills[1]
+            self.main_skills[skill] = main_skills[i]
             i += 1
 
         print(self.main_skills)

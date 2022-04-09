@@ -36,7 +36,7 @@ async def process_add_skills(callback_query: types.CallbackQuery, state=FSMConte
             if len(priority_skills) < 5:
                 await callback_query.answer(text="Выберите 5 навыков!", show_alert=True)
             else:
-                await callback_query.message.edit_text("Успешно!")
+                await callback_query.message.edit_text("Успешно!", reply_markup=types.InlineKeyboardMarkup())
                 player.priority_skills = priority_skills
                 player.calculate_skills(game.cursor, game.db)
                 print(player.add_skills)

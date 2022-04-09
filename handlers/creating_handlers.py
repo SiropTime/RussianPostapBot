@@ -1,3 +1,6 @@
+from emoji import emojize
+from time import sleep
+
 from telegram import dp
 
 from aiogram.dispatcher import FSMContext
@@ -31,9 +34,12 @@ async def process_biography(msg: types.Message, state: FSMContext):
     await state.finish()
     await msg.answer(MAIN_SKILLS_MSG_0, parse_mode=types.ParseMode.HTML)
     for i in range(len(MAIN_SKILLS_MSGS)):
+        sleep(2)
         await msg.answer(MAIN_SKILLS_MSGS[i], parse_mode=types.ParseMode.MARKDOWN)
 
     await MainSkillsForm.physics.set()
-    await msg.reply("Введите количество очков физической подготовки от 1 до 20:")
+    await msg.answer(emojize("Введите количество очков :muscle: ***физической подготовки*** от 1 до 20:",
+                             use_aliases=True),
+                     parse_mode=ParseMode.MARKDOWN)
 
 

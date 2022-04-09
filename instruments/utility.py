@@ -47,7 +47,9 @@ MAIN_SKILLS_MSG_1 = md.text("Если объяснять вкратце, то е
                             md.bold(emojize(':brain: Интеллект', use_aliases=True)),
                             md.bold(emojize(':eyes: Восприятие', use_aliases=True)),
                             md.bold(emojize(':bust_in_silhouette: Харизма', use_aliases=True)),
-                            "Все эти навыки имеют диапазон от 1 до 20 очков, определяющих уровень их прокачки",
+                            "Все эти навыки имеют диапазон от 1 до 20 очков, определяющих уровень их прокачки.",
+                            md.text("Запомните, что сумма всех навыков должна ", md.bold("не превышать 45"),
+                                    "но и должна быть ", md.bold("не меньше 4")),
                             sep="\n")
 
 MAIN_SKILLS_MSG_2 = md.text(emojize(_PHYSICS, use_aliases=True))
