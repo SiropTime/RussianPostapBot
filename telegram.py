@@ -1,9 +1,13 @@
+from asyncio.base_futures import Error
+
 from aiogram import Bot, Dispatcher
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
+from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import StatesGroup, State
 from aiogram.utils import executor
 from aiogram import types
 
+from instruments.keyboards import main_menu_kb
 from instruments.player import Player
 from game import Game
 from instruments.utility import TOKEN, START_MSG
@@ -20,8 +24,17 @@ class Form(StatesGroup):
     biography = State()
 
 
+# async def commands_list_menu(dis: Dispatcher):
+#     await
+
+
 @dp.message_handler(commands=['start'])
 async def send_welcome(msg: types.Message):
+    await dp.bot.set_my_commands([
+        types.BotCommand("start", "Создание персонажа"),
+        types.BotCommand("return", "Загрузка персонажа"),
+        types.BotCommand("menu", "Вызов меню")
+    ])
     await msg.answer(START_MSG)
     await Form.name.set()
 
@@ -37,13 +50,19 @@ def check_player(id: int) -> bool:
     return res
 
 
-@dp.message_handler(commands=['return'])
-async def return_player(msg: types.Message):
+@dp.message_handler(commands=['return'], state="*")
+async def return_player(msg: types.Message, state: FSMContext):
     player.id = msg.from_user.id
     try:
         player.load_player(game.cursor)
     except TypeError:
         await msg.answer("На вас не зарегистрирован персонаж. Попробуйте создать нового!")
+    try:
+        await state.finish()
+    except Error:
+        print("Пользователь с id" + str(msg.from_user.id) + " не был в state")
+    finally:
+        await msg.answer("Меню", reply_markup=main_menu_kb)
 
 # Переменные для экспорта
 __all__ = ["dp", "bot", "game", "player", "Form"]
