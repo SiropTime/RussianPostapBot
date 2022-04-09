@@ -4,7 +4,8 @@ from random import randint
 from emoji import emojize
 from aiogram.utils import markdown as md
 
-from instruments.game_utils import Item
+from game import Game
+from instruments.game_utils import Item, Location
 
 
 class Player:
@@ -14,6 +15,7 @@ class Player:
         self.biography = ""
         self.inventory = []
         self.money = 0
+        self.location = None
         self.main_skills = {"Физподготовка": 0,
                             "Интеллект": 0,
                             "Восприятие": 0,
@@ -48,17 +50,17 @@ class Player:
         for k, v in self.status.items():
             status_msg += emojize("   :small_red_triangle: ***" + k + "***: " + str(v) + "\n", use_aliases=True)
         main_chars_msg = md.text(
-                                 emojize(":floppy_disk: ***Основные характеристики***:\n",
-                                         use_aliases=True),
-                                 emojize("   :muscle: Физподготовка: " + str(self.main_skills["Физподготовка"]),
-                                         use_aliases=True),
-                                 emojize("   :brain: Интеллект: " + str(self.main_skills["Интеллект"]),
-                                         use_aliases=True),
-                                 emojize("   :eyes: Восприятие: " + str(self.main_skills["Восприятие"]),
-                                         use_aliases=True),
-                                 emojize("   :bust_in_silhouette: Харизма: " + str(self.main_skills["Харизма"]),
-                                         use_aliases=True),
-                                 sep="\n")
+            emojize(":floppy_disk: ***Основные характеристики***:\n",
+                    use_aliases=True),
+            emojize("   :muscle: Физподготовка: " + str(self.main_skills["Физподготовка"]),
+                    use_aliases=True),
+            emojize("   :brain: Интеллект: " + str(self.main_skills["Интеллект"]),
+                    use_aliases=True),
+            emojize("   :eyes: Восприятие: " + str(self.main_skills["Восприятие"]),
+                    use_aliases=True),
+            emojize("   :bust_in_silhouette: Харизма: " + str(self.main_skills["Харизма"]),
+                    use_aliases=True),
+            sep="\n")
         add_chars_msg = emojize(":game_die: ***Дополнительные характеристики***\n\n", use_aliases=True)
         for k, v in self.add_skills.items():
             add_chars_msg += emojize("   :small_orange_diamond: ***" + k + "***: " + str(v) + "\n")
@@ -90,6 +92,9 @@ class Player:
         cursor.execute("""
                        INSERT INTO status VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
                        """, (self.id, 100, 100, 100, 100, 100, 100, 100, 100, 600, 4600))
+        cursor.execute("""
+                       DELETE FROM inventory WHERE player_id = ?;
+                       """, [self.id])
         print(self.id, self.name, self.biography)
         print("Успешно загружен")
         connection.commit()
@@ -106,17 +111,18 @@ class Player:
                        """, tuple(temp))
         connection.commit()
 
-    def load_player(self, cursor: sqlite3.Cursor):
+    def load_player(self, cursor: sqlite3.Cursor, game: Game):
         """
         Метод загрузки всех данных персонажа из базы данных. Реализует это через приватные методы
         :param cursor: Курсор, связанный с нашей базой данных
         :return: None
         """
-        self._load_player(cursor)
+        self._load_player(cursor, game)
         self._load_status(cursor)
         self._load_inventory(cursor)
         self._load_main_skills(cursor)
         self._load_add_skills(cursor)
+        print("Успешно завершена загрузка персонажа с id: ", self.id)
 
     def calculate_skills(self, cursor: sqlite3.Cursor, conn: sqlite3.Connection):
         """
@@ -157,7 +163,8 @@ class Player:
         for k in self.add_skills.keys():
             if k == "Огнестрельное оружие":
                 break
-            self.add_skills[k] = int((randint(10, 20) * 0.1) * self.main_skills["Физподготовка"] + 0.5 * self.add_skills["Боевые искусства"])
+            self.add_skills[k] = int(
+                (randint(10, 20) * 0.1) * self.main_skills["Физподготовка"] + 0.5 * self.add_skills["Боевые искусства"])
 
     # Расчёт навыков, преимущественно связанных с интеллектом
     def _calculate_intelligence(self):
@@ -187,15 +194,24 @@ class Player:
             1.2 * self.main_skills["Восприятие"] + 1.7 * self.add_skills["Боевые искусства"])
 
     # Методы для загрузки данных из БД
-    def _load_player(self, cursor: sqlite3.Cursor):
+    def _load_player(self, cursor: sqlite3.Cursor, game: Game):
         cursor.execute("""
                         SELECT * FROM players where id = ?;
                         """, [self.id])
         player = cursor.fetchone()
-        print(player)
         self.name = player[1]
         self.biography = player[2]
         self.money = player[3]
+        self._get_location(player[4], game)
+
+    # Проверка локации среди всех возможных в игре
+    def _get_location(self, loc_name: str, game: Game):
+        for loc in game.locations:
+            if loc_name == loc.name:
+                self.location = Location
+        else:
+            print("У персонажа с id" + str(self.id) + " не указана локация, установлена стандартная")
+            self.location = game.locations[3]  # Село Архангельское
 
     # Загрузка состояния персонажа из БД
     def _load_status(self, cursor: sqlite3.Cursor):
@@ -203,15 +219,14 @@ class Player:
                                SELECT * FROM status where player_id = ?;
                                """, [self.id])
         status = cursor.fetchone()
-        print(status)
 
         i = 1
         for stat in self.status.keys():
             self.status[stat] = status[i]
             i += 1
 
-        print(self.status)
-        print("Завершена загрузка состояния персонажа с id:", self.id)
+        # print(self.status)
+        # print("Завершена загрузка состояния персонажа с id:", self.id)
 
     # Загрузка инвентаря из БД
     def _load_inventory(self, cursor: sqlite3.Cursor):
@@ -229,8 +244,8 @@ class Player:
             item.description = inventory[i][3]
             item.is_usable = inventory[i][4]
             self.inventory.append(item)
-        print(self.inventory)
-        print("Завершена загрузка инвентаря персонажа с id:", self.id)
+        # print(self.inventory)
+        # print("Завершена загрузка инвентаря персонажа с id:", self.id)
 
     # Загрузка основных навыков из БД
     def _load_main_skills(self, cursor: sqlite3.Cursor):
@@ -245,8 +260,8 @@ class Player:
             self.main_skills[skill] = main_skills[i]
             i += 1
 
-        print(self.main_skills)
-        print("Завершена загрузка основных навыков персонажа с id:", self.id)
+        # print(self.main_skills)
+        # print("Завершена загрузка основных навыков персонажа с id:", self.id)
 
     # Загрузка дополнительных навыков БД
     def _load_add_skills(self, cursor: sqlite3.Cursor):
@@ -261,5 +276,5 @@ class Player:
             self.add_skills[skill] = add_skills[i]
             i += 1
 
-        print(self.add_skills)
-        print("Завершена загрузка дополнительных навыков навыков персонажа с id:", self.id)
+        # print(self.add_skills)
+        # print("Завершена загрузка дополнительных навыков навыков персонажа с id:", self.id)

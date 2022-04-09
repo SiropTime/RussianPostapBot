@@ -7,7 +7,6 @@ from aiogram.dispatcher.filters.state import StatesGroup, State
 from aiogram.utils import executor
 from aiogram import types
 
-from instruments.keyboards import main_menu_kb
 from instruments.player import Player
 from game import Game
 from instruments.utility import TOKEN, START_MSG
@@ -54,7 +53,7 @@ def check_player(id: int) -> bool:
 async def return_player(msg: types.Message, state: FSMContext):
     player.id = msg.from_user.id
     try:
-        player.load_player(game.cursor)
+        player.load_player(game.cursor, game)
     except TypeError:
         await msg.answer("На вас не зарегистрирован персонаж. Попробуйте создать нового!")
     try:
@@ -62,7 +61,7 @@ async def return_player(msg: types.Message, state: FSMContext):
     except Error:
         print("Пользователь с id" + str(msg.from_user.id) + " не был в state")
     finally:
-        await msg.answer("Меню", reply_markup=main_menu_kb)
+        await msg.answer("Введите /menu")
 
 # Переменные для экспорта
 __all__ = ["dp", "bot", "game", "player", "Form"]
