@@ -2,12 +2,11 @@ from telegram import dp
 
 from aiogram.dispatcher import FSMContext
 from aiogram.utils import markdown as md
-# from aiogram.dispatcher.filters.state import StatesGroup, State
 from aiogram.types import ParseMode
 from aiogram import types
 
 from handlers.main_skills_handlers import MainSkillsForm
-from instruments.utility import MAIN_SKILLS_MSG_0, MAIN_SKILLS_MSGS, START_MSG
+from instruments.utility import MAIN_SKILLS_MSG_0, MAIN_SKILLS_MSGS
 from telegram import game, player, Form
 
 

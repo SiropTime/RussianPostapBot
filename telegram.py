@@ -45,11 +45,13 @@ async def return_player(msg: types.Message):
     except TypeError:
         await msg.answer("На вас не зарегистрирован персонаж. Попробуйте создать нового!")
 
-__all__ = ["dp", "bot", "game", "player"]
+# Переменные для экспорта
+__all__ = ["dp", "bot", "game", "player", "Form"]
 
 if __name__ == "__main__":
+    # Соединяем хэндлеры с основной программой
     from handlers import dp
-    # player.load_player(game.cursor)
+
     print(player.main_skills, player.add_skills)
     executor.start_polling(dp, skip_updates=True)
 

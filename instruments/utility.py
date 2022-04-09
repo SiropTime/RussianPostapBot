@@ -64,3 +64,9 @@ MENU_BUTTONS = [emojize(":arrow_up: Совершить действие", use_al
                 emojize(":email: Отправить текст отыгрыша", use_aliases=True),
                 emojize(":package: Инвентарь", use_aliases=True)]
 
+PROFILE_BUTTONS = [emojize(":floppy_disk: Основные навыки", use_aliases=True),
+                   emojize(":game_die: Дополнительные навыки", use_aliases=True),
+                   emojize(":red_circle: Состояние", use_aliases=True),
+                   emojize(":handbag: Инвентарь", use_aliases=True),
+                   emojize(":leftwards_arrow_with_hook: Обратно в меню", use_aliases=True)]
+

@@ -39,28 +39,38 @@ class Player:
                        "Психологическая устойчивость": 100,
                        "Выносливость": 600, "Кровь": 4600}
 
-    # Подготовка всех данных для вывода профиля
     def prepare_profile(self):
-        status_msg = emojize(":red_circle: ***Состояние персонажа***")
+        """
+        Подготовка всех данных для вывода профиля
+        :return: Массив из четырёх подготовленных к выводу сообщений: Статус, Осн. Навыки, Доп. Навыки, Инвентарь
+        """
+        status_msg = emojize(":red_circle: ***Состояние персонажа***\n\n")
+        for k, v in self.status.items():
+            status_msg += emojize("   :small_red_triangle: ***" + k + "***: " + str(v) + "\n", use_aliases=True)
         main_chars_msg = md.text(
-                                 emojize(":large_blue_diamond: ***Основные характеристики***:\n", use_aliases=True),
-                                 emojize("   :muscle: Физподготовка: " + str(self.main_skills["Физподготовка"]), use_aliases=True),
-                                 emojize("   :brain: Интеллект: " + str(self.main_skills["Интеллект"]), use_aliases=True),
-                                 emojize("   :eyes: Восприятие: " + str(self.main_skills["Восприятие"]), use_aliases=True),
-                                 emojize("   :bust_in_silhouette: Харизма: " + str(self.main_skills["Харизма"]), use_aliases=True),
+                                 emojize(":floppy_disk: ***Основные характеристики***:\n",
+                                         use_aliases=True),
+                                 emojize("   :muscle: Физподготовка: " + str(self.main_skills["Физподготовка"]),
+                                         use_aliases=True),
+                                 emojize("   :brain: Интеллект: " + str(self.main_skills["Интеллект"]),
+                                         use_aliases=True),
+                                 emojize("   :eyes: Восприятие: " + str(self.main_skills["Восприятие"]),
+                                         use_aliases=True),
+                                 emojize("   :bust_in_silhouette: Харизма: " + str(self.main_skills["Харизма"]),
+                                         use_aliases=True),
                                  sep="\n")
-        add_chars_msg = emojize(":large_orange_diamond: ***Дополнительные характеристики***\n\n", use_aliases=True)
+        add_chars_msg = emojize(":game_die: ***Дополнительные характеристики***\n\n", use_aliases=True)
         for k, v in self.add_skills.items():
             add_chars_msg += emojize("   :small_orange_diamond: " + k + ": " + str(v) + "\n")
 
         inventory_msg = emojize(":handbag: ***Инвентарь***\n", use_aliases=True)
-        for i in self.inventory:
-            item_msg = emojize("   :white_small_square: ***" + i.name + "***. ", use_aliases=True)
-            if i.quantity != 1:
-                item_msg += "***Кол-во***: " + str(i.quantity) + "."
+        for i in range(len(self.inventory)):
+            item = self.inventory[i]
+            item_msg = emojize(":white_small_square: ***" + item.name + "***. ", use_aliases=True)
+            if item.quantity != 1:
+                item_msg += "***Кол-во***: " + str(item.quantity) + "."
             inventory_msg += item_msg + "\n"
-
-        return [main_chars_msg, add_chars_msg, inventory_msg]
+        return [status_msg, main_chars_msg, add_chars_msg, inventory_msg]
 
     # Добавление предмета в базу данных инвентаря
     def add_item_to_inventory(self, cursor: sqlite3.Cursor, item: Item):
@@ -84,6 +94,7 @@ class Player:
         print("Успешно загружен")
         connection.commit()
 
+    # Отправляем основные навыки в базу данных
     def setup_main_skills(self, cursor: sqlite3.Cursor, connection: sqlite3.Connection):
         temp = [self.id]
         for i in self.main_skills.values():
@@ -200,6 +211,7 @@ class Player:
 
     # Загрузка инвентаря из БД
     def _load_inventory(self, cursor: sqlite3.Cursor):
+        self.inventory = []
         cursor.execute("""
                                        SELECT * FROM inventory where player_id = ?;
                                        """, [self.id])
@@ -211,6 +223,7 @@ class Player:
             item.name = inventory[i][1]
             item.quantity = inventory[i][2]
             item.description = inventory[i][3]
+            item.is_usable = inventory[i][4]
             self.inventory.append(item)
         print(self.inventory)
         print("Завершена загрузка инвентаря персонажа с id:", self.id)
