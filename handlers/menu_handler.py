@@ -1,4 +1,4 @@
-from instruments.utility import ADMIN
+from instruments.utility import ADMIN, logger
 from telegram import dp, game, was_loaded
 
 from aiogram import types
@@ -23,10 +23,25 @@ class Profile(StatesGroup):
     inventory = State()
 
 
+class WriteJournal(StatesGroup):
+    write = State()
+
+
 @dp.message_handler(commands=['menu'])
 async def menu(msg: types.Message):
     await msg.answer("Меню", reply_markup=main_menu_kb)
     # await Menu.main.set()
+
+
+@dp.message_handler(state=WriteJournal.write)
+async def processing_journal_write(msg: types.Message, state: FSMContext):
+    try:
+        with open("journal.txt", "w") as f:
+            f.write(msg.text)
+        await msg.answer("Успешно записано в журнал!")
+        await state.finish()
+    except OSError:
+        logger.error("Ошибка при работе журнала")
 
 
 @dp.message_handler(lambda msg: not msg.from_user.id == ADMIN)
@@ -55,7 +70,10 @@ async def process_menu(msg: types.Message):
         await msg.answer(emojize(msg.text, use_aliases=True))
 
     if msg.text == emojize(":email: Отправить текст отыгрыша", use_aliases=True):
-        await msg.answer(emojize(msg.text, use_aliases=True))
+        await WriteJournal.write.set()
+        await msg.answer(emojize(":scroll: ***Введите своё сообщение для журнала***:",
+                                 use_aliases=True),
+                         parse_mode=ParseMode.MARKDOWN)
 
     # Обработка выхода из всех подменю
     if msg.text == emojize(":leftwards_arrow_with_hook: Обратно в меню", use_aliases=True):
