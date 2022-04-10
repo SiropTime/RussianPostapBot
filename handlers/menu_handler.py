@@ -32,18 +32,26 @@ class WriteJournal(StatesGroup):
 @dp.message_handler(lambda msg: not msg.from_user.id == ADMIN, commands=['menu'])
 async def menu(msg: types.Message):
     await msg.answer("Меню", reply_markup=main_menu_kb)
-    # await Menu.main.set()
 
 
 @dp.message_handler(lambda msg: not msg.from_user.id == ADMIN, state=WriteJournal.write)
 async def processing_journal_write(msg: types.Message, state: FSMContext):
-    try:
-        with open("journal.txt", "a") as f:
-            f.write("[" + str(datetime.now()) + " | " + player.name + "]:\n" + msg.text + "\n[КОНЕЦ ЗАПИСИ]\n")
-        await msg.answer("Успешно записано в журнал!")
-        await state.finish()
-    except OSError:
-        logger.error("Ошибка при работе журнала")
+    with open("journal.txt", "a") as f:
+        try:
+            f.write("[" + str(datetime.now()) + " | " + player.name + "]:\n" + msg.text + "\n[КОНЕЦ ЗАПИСИ]\n\n")
+            await msg.answer("Успешно записано в журнал!")
+            await bot.send_message(ADMIN,
+                                   emojize(
+                                       ":triangular_flag_on_post: Добавлена новая запись в журнал от игрока с id: " +
+                                       str(msg.from_user.id),
+                                       use_aliases=True))
+            await state.finish()
+        except UnicodeEncodeError:
+            await msg.answer("***Ошибка кодировки!***\nПопробуйте убрать спорные символы и смайлики!",
+                             parse_mode=ParseMode.MARKDOWN)
+            await msg.answer(emojize(":scroll: ***Введите своё сообщение для журнала***:",
+                                     use_aliases=True),
+                             parse_mode=ParseMode.MARKDOWN)
 
 
 @dp.message_handler(lambda msg: not msg.from_user.id == ADMIN)
@@ -56,7 +64,9 @@ async def process_menu(msg: types.Message):
     player_profile = player.prepare_profile()
     # Обработка главного меню
     if msg.text == emojize(":clipboard: Профиль", use_aliases=True):
-        await msg.answer(emojize(":clipboard: ***Профиль***: " + player.name), parse_mode=ParseMode.MARKDOWN,
+        await msg.answer(emojize(":clipboard: ***Профиль***: " + player.name + "\n ***Опыт/Уровень***: " +
+                                 str(player.xp) + "/" + str(player.level)),
+                         parse_mode=ParseMode.MARKDOWN,
                          reply_markup=profile_kb)
 
     if msg.text == emojize(":earth_asia: Местоположение", use_aliases=True):
@@ -76,6 +86,13 @@ async def process_menu(msg: types.Message):
         await msg.answer(emojize(":scroll: ***Введите своё сообщение для журнала***:",
                                  use_aliases=True),
                          parse_mode=ParseMode.MARKDOWN)
+
+    if msg.text == emojize(":scroll: Журнал", use_aliases=True):
+        with open("journal.txt", "r") as f:
+            await msg.answer(emojize(":scroll: ***Журнал***:", use_aliases=True),
+                             parse_mode=ParseMode.MARKDOWN)
+            journal = f.read()
+            await msg.answer(journal)
 
     # Обработка выхода из всех подменю
     if msg.text == emojize(":leftwards_arrow_with_hook: Обратно в меню", use_aliases=True):

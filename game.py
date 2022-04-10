@@ -35,6 +35,7 @@ class Game:
         players_msg = [emojize(":bar_chart: ***Холопы***:\n\n", use_aliases=True)]
         for id, p in self.players.items():
             player_msg = emojize(":man: ***" + p.name + "*** id: ```" + str(id) + "```\n", use_aliases=True)
+            player_msg += emojize(":black_square_button: ***Опыт***: " + str(p.xp) + "\n", use_aliases=True)
             player_msg += emojize(":black_square_button: ***Уровень***: " + str(p.level) + "\n", use_aliases=True)
             player_msg += emojize(":black_square_button: ***Локация***: " + p.location.name + "\n", use_aliases=True)
             player_msg += emojize(":black_square_button: ***Деньги***: " + str(p.money) + "\n", use_aliases=True)
@@ -68,6 +69,10 @@ class Game:
             player.load_player(self.cursor, self)
             self.players[player.id] = player
 
+    def update_players(self):
+        for p in self.players.values():
+            p.update_player(self.cursor, self.db)
+
     def load_locations(self):
         self.cursor.execute("""
                             SELECT * FROM locations;
@@ -78,10 +83,17 @@ class Game:
             loc.name = i[0]
             loc.description = i[1]
             loc.coordinates = (i[2], i[3])
-            loc.neighbours = i[4]
             self.locations.append(loc)
         logger.info(self.locations)
         logger.info("Загрузка локаций завершена успешно")
+
+    def update_locations(self):
+        for loc in self.locations:
+            self.cursor.execute("""
+                                INSERT INTO locations VALUES (?, ?, ?, ?);
+                                """,
+                                (loc.name, loc.description, loc.coordinates[0], loc.coordinates[1]))
+        self.db.commit()
 
     def load_animals(self):
         self.cursor.execute("""
@@ -95,3 +107,10 @@ class Game:
             animal.area = i[2]
         logger.info(self.animals)
         logger.info("Загрузка существ завершена успешно")
+
+    def update_animals(self):
+        for anim in self.animals:
+            self.cursor.execute("""
+                                INSERT INTO animals VALUES (?, ?, ?);
+                                """, (anim.name, anim.description, anim.area))
+        self.db.commit()

@@ -21,7 +21,6 @@ player = Player()
 was_loaded = False
 
 
-
 class Form(StatesGroup):
     name = State()
     biography = State()
@@ -36,17 +35,6 @@ async def send_welcome(msg: types.Message):
     ])
     await msg.answer(START_MSG)
     await Form.name.set()
-
-
-def check_player(id: int) -> bool:
-    res = False
-    for i in range(len(game.players)):
-        if id == game.players[i].id:
-            res = True
-            return res
-        else:
-            res = False
-    return res
 
 
 @dp.message_handler(commands=['return'], state="*")

@@ -76,11 +76,10 @@ MASTER_MESSAGE = md.text(md.bold(emojize(":mortar_board: ***Меню гейм м
                          sep="\n")
 
 MENU_BUTTONS = [
-                # emojize(":arrow_up: Совершить действие", use_aliases=True),
                 emojize(":clipboard: Профиль", use_aliases=True),
                 emojize(":earth_asia: Местоположение", use_aliases=True),
                 emojize(":email: Отправить текст отыгрыша", use_aliases=True),
-                # emojize(":package: Инвентарь", use_aliases=True)
+                emojize(":scroll: Журнал", use_aliases=True)
                 ]
 
 PROFILE_BUTTONS = [emojize(":floppy_disk: Основные навыки", use_aliases=True),

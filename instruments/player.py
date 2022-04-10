@@ -18,6 +18,7 @@ class Player:
         self.inventory = []
         self.money = 0
         self.level = 0
+        self.xp = 0
         self.location = None
         self.main_skills = {"Физподготовка": 0,
                             "Интеллект": 0,
@@ -78,12 +79,13 @@ class Player:
         return [status_msg, main_chars_msg, add_chars_msg, inventory_msg]
 
     # Добавление предмета в базу данных инвентаря
-    def add_item_to_inventory(self, cursor: sqlite3.Cursor, item: Item):
+    def add_item_to_inventory(self, cursor: sqlite3.Cursor, connection: sqlite3.Connection, item: Item):
         self.inventory.append(item)
         cursor.execute("""
                         INSERT INTO inventory (player_id, item, quantity, description, is_usable) VALUES
                         (?, ?, ?, ?, ?)
                         """, (self.id, item.name, item.quantity, item.description, item.is_usable))
+        connection.commit()
 
     # Создаём персонажа и загружаем его в бд.
     #
@@ -225,12 +227,13 @@ class Player:
         self.money = player[3]
         self._get_location(player[4], game)
         self.level = player[5]
+        self.xp = player[6]
 
     def _update_player(self, cursor: sqlite3.Cursor):
         cursor.execute("""
-                               INSERT INTO players (id, name, biography, money, location, level) VALUES (?, ?, ?, ?, ?, ?);
+                               INSERT INTO players (id, name, biography, money, location, level, xp) VALUES (?, ?, ?, ?, ?, ?, ?);
                                """,
-                       (self.id, self.name, self.biography, self.money, self.location.name, self.level))
+                       (self.id, self.name, self.biography, self.money, self.location.name, self.level, self.xp))
 
     # Проверка локации среди всех возможных в игре
     def _get_location(self, loc_name: str, game):
