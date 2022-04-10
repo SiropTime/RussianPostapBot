@@ -1,5 +1,3 @@
-import logging
-
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import StatesGroup, State
@@ -43,4 +41,6 @@ async def admin_console_processing(msg: types.Message):
                          parse_mode=ParseMode.MARKDOWN)
 
     if msg.text == MASTER_BUTTONS[0]:
-        pass
+        players_msg = game.prepare_players()
+        for m in players_msg:
+            await msg.answer(m, parse_mode=ParseMode.MARKDOWN)

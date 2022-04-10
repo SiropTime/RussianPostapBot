@@ -1,4 +1,3 @@
-import logging
 import sqlite3
 from random import randint
 
@@ -240,7 +239,7 @@ class Player:
                 self.location = loc
                 break
         else:
-            logging.exception("У персонажа с id" + str(self.id) + " не указана локация, установлена стандартная")
+            logger.exception("У персонажа с id" + str(self.id) + " не указана локация, установлена стандартная")
             self.location = game.locations[3]  # Село Архангельское
             game.cursor.execute("""
                                 UPDATE players SET location = ? WHERE id = ?;

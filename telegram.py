@@ -1,8 +1,5 @@
 import asyncio
-import sys
 from asyncio.base_futures import Error
-
-import logging
 
 from aiogram import Bot, Dispatcher
 from aiogram.contrib.fsm_storage.memory import MemoryStorage

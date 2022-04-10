@@ -1,6 +1,7 @@
-import logging
 import sqlite3
 from sqlite3 import Error
+
+from emoji import emojize
 
 from instruments.game_utils import *
 from instruments.player import Player
@@ -29,6 +30,26 @@ class Game:
         self.load_animals()
 
         self.load_players()
+
+    # Подготовка для вывода всех игроков, записанных в БД
+    def prepare_players(self):
+        players_msg = [emojize(":bar_chart: ***Холопы***:\n\n", use_aliases=True)]
+        for id, p in self.players.items():
+            player_msg = emojize(":man: ***" + p.name + "*** id: ```" + str(id) + "```\n", use_aliases=True)
+            player_msg += emojize(":black_square_button: ***Уровень***: " + str(p.level) + "\n", use_aliases=True)
+            player_msg += emojize(":black_square_button: ***Локация***: " + p.location.name + "\n", use_aliases=True)
+            player_msg += emojize(":black_square_button: ***Деньги***: " + str(p.money) + "\n", use_aliases=True)
+            player_msg += emojize(":black_square_button: ***Основные навыки***: " + str(p.main_skills) + "\n",
+                                  use_aliases=True)
+            player_msg += emojize(":black_square_button: ***Дополнительные навыки***: " + str(p.add_skills) + "\n",
+                                  use_aliases=True)
+            player_msg += emojize(":black_square_button: ***Состояние***: " + str(p.status) + "\n",
+                                  use_aliases=True)
+            player_msg += emojize(":black_square_button: ***Инвентарь***: " + str(p.inventory) + "\n",
+                                  use_aliases=True)
+            players_msg.append(player_msg)
+        logger.info("Подготовлены игроки для вывода")
+        return players_msg
 
     def create_player(self, id: int, name: str, biography: str, player: Player):
         player.id = id
