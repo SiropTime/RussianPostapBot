@@ -1,9 +1,18 @@
+import logging
+import sys
+
 from emoji import emojize
 import aiogram.utils.markdown as md
 
 
 TOKEN = "5218155011:AAF0GYeUQtMswyMXHhsULlrLHlnQrphEpA8"
 ADMIN = 390919747
+
+logger = logging.getLogger(__name__)
+
+handler = logging.StreamHandler(stream=sys.stdout)
+logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s', handlers=[handler], level=logging.INFO)
+
 
 START_MSG = """
 Здравствуй!

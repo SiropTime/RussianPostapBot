@@ -1,4 +1,4 @@
-from telegram import dp
+from telegram import dp, logger
 
 from contextlib import suppress
 
@@ -39,7 +39,7 @@ async def process_add_skills(callback_query: types.CallbackQuery, state=FSMConte
                 await callback_query.message.edit_text("Успешно!", reply_markup=types.InlineKeyboardMarkup())
                 player.priority_skills = priority_skills
                 player.calculate_skills(game.cursor, game.db)
-                print(player.add_skills)
+                logger.info(player.add_skills)
                 await state.finish()
                 # await Menu.main.set()
                 await bot.send_message(player.id, "Меню", reply_markup=main_menu_kb)

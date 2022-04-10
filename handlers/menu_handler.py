@@ -1,5 +1,5 @@
 from instruments.utility import ADMIN
-from telegram import dp, game
+from telegram import dp, game, was_loaded
 
 from aiogram import types
 from aiogram.dispatcher import FSMContext
@@ -31,8 +31,11 @@ async def menu(msg: types.Message):
 
 @dp.message_handler(lambda msg: not msg.from_user.id == ADMIN)
 async def process_menu(msg: types.Message):
-    player.id = int(msg.from_user.id)
-    player.load_player(game.cursor, game)
+    if was_loaded:
+        player.update_player(game.cursor, game.db)
+    else:
+        await msg.answer("***Загрузите*** (/return) или ***создайте*** персонажа (/start)",
+                         parse_mode=ParseMode.MARKDOWN)
     player_profile = player.prepare_profile()
     # Обработка главного меню
     if msg.text == emojize(":clipboard: Профиль", use_aliases=True):

@@ -4,6 +4,7 @@ from sqlite3 import Error
 
 from instruments.game_utils import *
 from instruments.player import Player
+from instruments.utility import logger
 
 
 class Game:
@@ -18,9 +19,9 @@ class Game:
 
         try:
             self.db = sqlite3.connect("data.db", check_same_thread=False)
-            logging.info("Соединение с базой данных произошло успешно!")
+            logger.info("Соединение с базой данных произошло успешно!")
         except Error as e:
-            logging.error(f"При присоединении к БД произошла ошибка: '{e}'.")
+            logger.error(f"При присоединении к БД произошла ошибка: '{e}'.")
 
         self.cursor = self.db.cursor()
 
@@ -59,8 +60,8 @@ class Game:
             loc.coordinates = (i[2], i[3])
             loc.neighbours = i[4]
             self.locations.append(loc)
-        logging.info(self.locations)
-        logging.info("Загрузка локаций завершена успешно")
+        logger.info(self.locations)
+        logger.info("Загрузка локаций завершена успешно")
 
     def load_animals(self):
         self.cursor.execute("""
@@ -72,5 +73,5 @@ class Game:
             animal.name = i[0]
             animal.description = i[1]
             animal.area = i[2]
-        logging.info(self.animals)
-        logging.info("Загрузка существ завершена успешно")
+        logger.info(self.animals)
+        logger.info("Загрузка существ завершена успешно")

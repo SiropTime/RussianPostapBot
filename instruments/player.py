@@ -6,6 +6,7 @@ from emoji import emojize
 from aiogram.utils import markdown as md
 
 from instruments.game_utils import Item
+from instruments.utility import logger
 
 __all__ = ["Player"]
 
@@ -98,19 +99,25 @@ class Player:
         cursor.execute("""
                        DELETE FROM inventory WHERE player_id = ?;
                        """, [self.id])
-        print(self.id, self.name, self.biography)
-        print("Успешно загружен")
+        logger.info(self.id, self.name, self.biography)
+        logger.info("Успешно загружен id" + str(self.id))
         connection.commit()
 
+    # Обновляем данные об игроке в БД
     def update_player(self, cursor: sqlite3.Cursor, connection: sqlite3.Connection):
-        pass
+        self._update_player(cursor)
+        self._update_status(cursor)
+        self._update_main_skills(cursor)
+        self._update_add_skills(cursor)
+        logger.info("Обновление игрока с id" + str(self.id) + " завершено успешно")
+        connection.commit()
 
     # Отправляем основные навыки в базу данных
     def setup_main_skills(self, cursor: sqlite3.Cursor, connection: sqlite3.Connection):
         temp = [self.id]
         for i in self.main_skills.values():
             temp.append(i)
-        print(temp)
+        logger.info(temp)
         cursor.execute("""
                        INSERT INTO main_skills (player_id, physical, intelligence, perception, charisma)
                        VALUES (?, ?, ?, ?, ?);
@@ -129,7 +136,7 @@ class Player:
         self._load_inventory(cursor)
         self._load_main_skills(cursor)
         self._load_add_skills(cursor)
-        logging.info("Успешно завершена загрузка персонажа с id:", self.id)
+        logger.info("Успешно завершена загрузка персонажа с id:" + str(self.id))
 
     # Удаление предмета из инвентаря
     def delete_item(self, item: Item):

@@ -9,7 +9,7 @@ from emoji import emojize
 
 from instruments.keyboards import gamemaster_kb
 from instruments.utility import ADMIN, MASTER_BUTTONS
-from telegram import dp, game, bot
+from telegram import dp, game, bot, logger
 
 
 class Shout(StatesGroup):
@@ -24,7 +24,7 @@ async def processing_shout(msg: types.Message, state=FSMContext):
                                               use_aliases=True),
                                    parse_mode=ParseMode.MARKDOWN)
         except ChatNotFound:
-            logging.info("Игрок с id" + str(p) + " не имеет чата с ботом")
+            logger.info("Игрок с id" + str(p) + " не имеет чата с ботом")
     await state.finish()
 
 
@@ -34,10 +34,13 @@ async def admin_console_processing(msg: types.Message):
                      parse_mode=ParseMode.MARKDOWN, reply_markup=gamemaster_kb)
     if '!к' in msg.text:
         command = list(map(str, msg.text[2:].split()))
-        print(command)
+        logger.info(command)
 
     if msg.text == MASTER_BUTTONS[2]:
         await Shout.shout.set()
         await msg.answer(emojize(":mega: Введите своё ***сообщение*** для игроков:",
                                  use_aliases=True),
                          parse_mode=ParseMode.MARKDOWN)
+
+    if msg.text == MASTER_BUTTONS[0]:
+        pass
