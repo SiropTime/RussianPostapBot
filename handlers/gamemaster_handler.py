@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import StatesGroup, State
@@ -33,8 +35,8 @@ async def processing_shout(msg: types.Message, state: FSMContext):
 @dp.message_handler(lambda msg: msg.from_user.id == ADMIN, state=WriteJournal.write)
 async def processing_journal_write(msg: types.Message, state: FSMContext):
     try:
-        with open("journal.txt", "w") as f:
-            f.write(msg.text)
+        with open("journal.txt", "a") as f:
+            f.write("[" + str(datetime.now()) + " | МАСТЕР]:\n" + msg.text + "\n[КОНЕЦ ЗАПИСИ]\n")
         await msg.answer("Успешно записано в журнал!")
         await state.finish()
     except OSError:
@@ -59,6 +61,14 @@ async def admin_console_processing(msg: types.Message):
         players_msg = game.prepare_players()
         for m in players_msg:
             await msg.answer(m, parse_mode=ParseMode.MARKDOWN)
+
+    if msg.text == MASTER_BUTTONS[1]:
+        with open("journal.txt", "r") as f:
+            await msg.answer(emojize(":scroll: ***Журнал***:", use_aliases=True),
+                             parse_mode=ParseMode.MARKDOWN)
+            journal = f.read()\
+                # .replace('\n', '').replace('\r', '')
+            await msg.answer(journal)
 
     if msg.text == MASTER_BUTTONS[3]:
         await WriteJournal.write.set()

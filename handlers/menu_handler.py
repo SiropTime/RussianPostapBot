@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from instruments.utility import ADMIN, logger
 from telegram import dp, game, was_loaded
 
@@ -27,17 +29,17 @@ class WriteJournal(StatesGroup):
     write = State()
 
 
-@dp.message_handler(commands=['menu'])
+@dp.message_handler(lambda msg: not msg.from_user.id == ADMIN, commands=['menu'])
 async def menu(msg: types.Message):
     await msg.answer("Меню", reply_markup=main_menu_kb)
     # await Menu.main.set()
 
 
-@dp.message_handler(state=WriteJournal.write)
+@dp.message_handler(lambda msg: not msg.from_user.id == ADMIN, state=WriteJournal.write)
 async def processing_journal_write(msg: types.Message, state: FSMContext):
     try:
-        with open("journal.txt", "w") as f:
-            f.write(msg.text)
+        with open("journal.txt", "a") as f:
+            f.write("[" + str(datetime.now()) + " | " + player.name + "]:\n" + msg.text + "\n[КОНЕЦ ЗАПИСИ]\n")
         await msg.answer("Успешно записано в журнал!")
         await state.finish()
     except OSError:
