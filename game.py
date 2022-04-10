@@ -14,7 +14,6 @@ class Game:
         self.locations = []
         self.animals = []
         self.players = {}
-        self.journal = ""
 
         # self.helper = RolePlayHelper()
 

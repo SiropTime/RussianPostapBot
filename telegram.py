@@ -21,6 +21,7 @@ player = Player()
 was_loaded = False
 
 
+
 class Form(StatesGroup):
     name = State()
     biography = State()
