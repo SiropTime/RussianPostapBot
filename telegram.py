@@ -1,4 +1,7 @@
+import asyncio
 from asyncio.base_futures import Error
+
+import logging
 
 from aiogram import Bot, Dispatcher
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
@@ -6,6 +9,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import StatesGroup, State
 from aiogram.utils import executor
 from aiogram import types
+from aiogram.utils.exceptions import ChatNotFound
 
 from instruments.player import Player
 from game import Game
@@ -21,10 +25,6 @@ player = Player()
 class Form(StatesGroup):
     name = State()
     biography = State()
-
-
-# async def commands_list_menu(dis: Dispatcher):
-#     await
 
 
 @dp.message_handler(commands=['start'])
@@ -59,9 +59,18 @@ async def return_player(msg: types.Message, state: FSMContext):
     try:
         await state.finish()
     except Error:
-        print("Пользователь с id" + str(msg.from_user.id) + " не был в state")
+        logging.info("Пользователь с id" + str(msg.from_user.id) + " не был в state")
     finally:
         await msg.answer("Введите /menu")
+
+
+async def on_startup(_):
+    for p in game.players.keys():
+        try:
+            await bot.send_message(p, "Бот запущен заново, введите команду /return")
+            await asyncio.sleep(1)
+        except ChatNotFound:
+            logging.info("Игрок с id" + str(p) + " не имеет чата с ботом")
 
 # Переменные для экспорта
 __all__ = ["dp", "bot", "game", "player", "Form"]
@@ -71,6 +80,6 @@ if __name__ == "__main__":
     from handlers import dp
 
     print(player.main_skills, player.add_skills)
-    executor.start_polling(dp, skip_updates=True)
+    executor.start_polling(dp, skip_updates=True, on_startup=on_startup)
 
 

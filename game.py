@@ -1,7 +1,9 @@
+import logging
 import sqlite3
 from sqlite3 import Error
 
 from instruments.game_utils import *
+from instruments.player import Player
 
 
 class Game:
@@ -16,20 +18,34 @@ class Game:
 
         try:
             self.db = sqlite3.connect("data.db", check_same_thread=False)
-            print("Соединение с базой данных произошло успешно!")
+            logging.info("Соединение с базой данных произошло успешно!")
         except Error as e:
-            print(f"При присоединении к БД произошла ошибка: '{e}'.")
+            logging.error(f"При присоединении к БД произошла ошибка: '{e}'.")
 
         self.cursor = self.db.cursor()
+
         self.load_locations()
         self.load_animals()
 
-    def create_player(self, id: int, name: str, biography: str, player):
+        self.load_players()
+
+    def create_player(self, id: int, name: str, biography: str, player: Player):
         player.id = id
         player.name = name
         player.biography = biography
         self.players[id] = player
         player.create_player(self.cursor, self.db)
+
+    def load_players(self):
+        self.cursor.execute("""
+                            SELECT * FROM players;
+                            """)
+        players = self.cursor.fetchall()
+        for p in players:
+            player = Player()
+            player.id = p[0]
+            player.load_player(self.cursor, self)
+            self.players[player.id] = player
 
     def load_locations(self):
         self.cursor.execute("""
@@ -43,8 +59,8 @@ class Game:
             loc.coordinates = (i[2], i[3])
             loc.neighbours = i[4]
             self.locations.append(loc)
-        print(self.locations)
-        print("Загрузка локаций завершена успешно")
+        logging.info(self.locations)
+        logging.info("Загрузка локаций завершена успешно")
 
     def load_animals(self):
         self.cursor.execute("""
@@ -56,14 +72,5 @@ class Game:
             animal.name = i[0]
             animal.description = i[1]
             animal.area = i[2]
-        print(self.animals)
-        print("Загрузка существ завершена успешно")
-
-
-class GameMaster:
-    def __init__(self):
-        pass
-
-
-# if __name__ == "__main__":
-#     game = Game()
+        logging.info(self.animals)
+        logging.info("Загрузка существ завершена успешно")

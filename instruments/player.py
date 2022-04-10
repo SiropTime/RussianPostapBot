@@ -1,11 +1,13 @@
+import logging
 import sqlite3
 from random import randint
 
 from emoji import emojize
 from aiogram.utils import markdown as md
 
-from game import Game
-from instruments.game_utils import Item, Location
+from instruments.game_utils import Item
+
+__all__ = ["Player"]
 
 
 class Player:
@@ -15,6 +17,7 @@ class Player:
         self.biography = ""
         self.inventory = []
         self.money = 0
+        self.level = 0
         self.location = None
         self.main_skills = {"Физподготовка": 0,
                             "Интеллект": 0,
@@ -99,6 +102,9 @@ class Player:
         print("Успешно загружен")
         connection.commit()
 
+    def update_player(self, cursor: sqlite3.Cursor, connection: sqlite3.Connection):
+        pass
+
     # Отправляем основные навыки в базу данных
     def setup_main_skills(self, cursor: sqlite3.Cursor, connection: sqlite3.Connection):
         temp = [self.id]
@@ -111,7 +117,7 @@ class Player:
                        """, tuple(temp))
         connection.commit()
 
-    def load_player(self, cursor: sqlite3.Cursor, game: Game):
+    def load_player(self, cursor: sqlite3.Cursor, game):
         """
         Метод загрузки всех данных персонажа из базы данных. Реализует это через приватные методы
         :param game: Объект Game, необходим для проверки локаций
@@ -123,7 +129,15 @@ class Player:
         self._load_inventory(cursor)
         self._load_main_skills(cursor)
         self._load_add_skills(cursor)
-        print("Успешно завершена загрузка персонажа с id:", self.id)
+        logging.info("Успешно завершена загрузка персонажа с id:", self.id)
+
+    # Удаление предмета из инвентаря
+    def delete_item(self, item: Item):
+        pass
+
+    # Изменение количества предметов в инвентаре
+    def update_quantity_of_item(self, item: Item, quantity: int):
+        pass
 
     def calculate_skills(self, cursor: sqlite3.Cursor, conn: sqlite3.Connection):
         """
@@ -195,7 +209,7 @@ class Player:
             1.2 * self.main_skills["Восприятие"] + 1.7 * self.add_skills["Боевые искусства"])
 
     # Методы для загрузки данных из БД
-    def _load_player(self, cursor: sqlite3.Cursor, game: Game):
+    def _load_player(self, cursor: sqlite3.Cursor, game):
         cursor.execute("""
                         SELECT * FROM players where id = ?;
                         """, [self.id])
@@ -204,15 +218,22 @@ class Player:
         self.biography = player[2]
         self.money = player[3]
         self._get_location(player[4], game)
+        self.level = player[5]
+
+    def _update_player(self, cursor: sqlite3.Cursor):
+        cursor.execute("""
+                               INSERT INTO players (id, name, biography, money, location, level) VALUES (?, ?, ?, ?, ?, ?);
+                               """,
+                       (self.id, self.name, self.biography, self.money, self.location.name, self.level))
 
     # Проверка локации среди всех возможных в игре
-    def _get_location(self, loc_name: str, game: Game):
+    def _get_location(self, loc_name: str, game):
         for loc in game.locations:
             if loc_name == loc.name:
                 self.location = loc
                 break
         else:
-            print("У персонажа с id" + str(self.id) + " не указана локация, установлена стандартная")
+            logging.exception("У персонажа с id" + str(self.id) + " не указана локация, установлена стандартная")
             self.location = game.locations[3]  # Село Архангельское
             game.cursor.execute("""
                                 UPDATE players SET location = ? WHERE id = ?;
@@ -230,6 +251,11 @@ class Player:
         for stat in self.status.keys():
             self.status[stat] = status[i]
             i += 1
+
+    def _update_status(self, cursor: sqlite3.Cursor):
+        cursor.execute("""
+                        INSERT INTO status VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+                       """, [self.id] + [x for x in self.status.values()])
 
     # Загрузка инвентаря из БД
     def _load_inventory(self, cursor: sqlite3.Cursor):
@@ -259,6 +285,11 @@ class Player:
             self.main_skills[skill] = main_skills[i]
             i += 1
 
+    def _update_main_skills(self, cursor: sqlite3.Cursor):
+        cursor.execute("""
+                       INSERT INTO main_skills VALUES (?, ?, ?, ?, ?);
+                       """, [self.id] + [x for x in self.main_skills.values()])
+
     # Загрузка дополнительных навыков БД
     def _load_add_skills(self, cursor: sqlite3.Cursor):
         cursor.execute("""
@@ -270,3 +301,9 @@ class Player:
         for skill in self.add_skills.keys():
             self.add_skills[skill] = add_skills[i]
             i += 1
+
+    def _update_add_skills(self, cursor: sqlite3.Cursor):
+        cursor.execute("""
+                        INSERT INTO add_skill VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 
+                        ?, ?, ?, ?, ?, ?, ?, ?);
+                       """, [self.id] + [x for x in self.add_skills.values()])

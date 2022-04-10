@@ -60,7 +60,14 @@ MAIN_SKILLS_MSG_5 = md.text(emojize(_CHARISMA, use_aliases=True))
 MAIN_SKILLS_MSGS = [MAIN_SKILLS_MSG_1, MAIN_SKILLS_MSG_2, MAIN_SKILLS_MSG_3,
                     MAIN_SKILLS_MSG_4, MAIN_SKILLS_MSG_5]
 
-MENU_BUTTONS = [emojize(":arrow_up: Совершить действие", use_aliases=True),
+MASTER_MESSAGE = md.text(md.bold(emojize(":mortar_board: ***Меню гейм мастера***", use_aliases=True)),
+                         "Для выполнения любых действий со стороны гейммастера используйте данный синтаксис:",
+                         md.code("!к [название_команды] [аргументы команды]"),
+                         md.text("Аргументами команды может быть всё, что угодно, смотрите"), md.hlink("пособие", ""),
+                         sep="\n")
+
+MENU_BUTTONS = [
+                # emojize(":arrow_up: Совершить действие", use_aliases=True),
                 emojize(":clipboard: Профиль", use_aliases=True),
                 emojize(":earth_asia: Местоположение", use_aliases=True),
                 emojize(":email: Отправить текст отыгрыша", use_aliases=True),
@@ -73,3 +80,9 @@ PROFILE_BUTTONS = [emojize(":floppy_disk: Основные навыки", use_al
                    emojize(":handbag: Инвентарь", use_aliases=True),
                    emojize(":leftwards_arrow_with_hook: Обратно в меню", use_aliases=True)]
 
+MASTER_BUTTONS = [
+    emojize(":bar_chart: Список холопов", use_aliases=True),
+    emojize(":scroll: Журнал", use_aliases=True),
+    emojize(":mega: Поорать", use_aliases=True),
+    emojize(":city_sunset: Покалякать в журнал", use_aliases=True)
+]

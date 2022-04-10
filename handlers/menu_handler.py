@@ -1,3 +1,4 @@
+from instruments.utility import ADMIN
 from telegram import dp, game
 
 from aiogram import types
@@ -28,7 +29,7 @@ async def menu(msg: types.Message):
     # await Menu.main.set()
 
 
-@dp.message_handler()
+@dp.message_handler(lambda msg: not msg.from_user.id == ADMIN)
 async def process_menu(msg: types.Message):
     player.id = int(msg.from_user.id)
     player.load_player(game.cursor, game)
