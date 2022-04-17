@@ -1,3 +1,4 @@
+from asyncio import sleep
 from datetime import datetime
 from typing import List
 
@@ -8,9 +9,9 @@ from aiogram.types import ParseMode
 from aiogram.utils.exceptions import ChatNotFound
 from emoji import emojize
 
-from instruments.keyboards import gamemaster_kb
+from instruments.keyboards import gamemaster_kb, check_skill_kb
 from instruments.utility import ADMIN, MASTER_BUTTONS, logger
-from instruments.game_utils import Location, Animal, Item
+from instruments.game_utils import Location, Animal, Item, check_skill
 from telegram import dp, game, bot
 
 
@@ -117,17 +118,124 @@ async def admin_console_processing(command: List[str]):
                                    parse_mode=ParseMode.MARKDOWN)
     elif command[0] == 'проверить':
         if command[1] == 'осн_навык':
-            pass
+            id = int(command[2])
+            skill = process_string(command[3])
+            bonuses = list(map(int, command[4][1:-1].split(sep=",")))
+            flag = True
+            try:
+                description = " ".join(command[5:])
+            except IndexError:
+                logger.info("Нет описания события!")
+                description = ""
+            logger.info(str(id) + skill + str(bonuses))
+            try:
+                skill_value = game.players[id].main_skills[skill]
+            except KeyError:
+                flag = False
+                skill_value = 0
+                await bot.send_message(ADMIN, f"***Такого навыка {skill} не существует!***"
+                                              f"\nПроверьте на наличие опечаток или посмотрите список основных навыков",
+                                       parse_mode=ParseMode.MARKDOWN)
+
+            await bot.send_message(id, "Вызвана проверка основного навыка - ***" + skill + "***."
+                                                                                           "\n***Описание события:***",
+                                   parse_mode=ParseMode.MARKDOWN)
+            if not description == "":
+                await bot.send_message(id, description)
+            else:
+                await bot.send_message(id, "Описание забрали рейдеры пустоши!")
+
+            if flag:
+                is_successful = check_skill(skill_value, bonuses, (-1, 21))
+
+                await sleep(2)
+                if is_successful:
+                    await bot.send_message(ADMIN, emojize(":white_check_mark: ***Успешно!***", use_aliases=True),
+                                 parse_mode=ParseMode.MARKDOWN)
+                    await bot.send_message(id, emojize(":white_check_mark: ***Успешно!***", use_aliases=True),
+                                 parse_mode=ParseMode.MARKDOWN)
+                else:
+                    await bot.send_message(ADMIN, emojize(":x: ***Провал!***", use_aliases=True),
+                                           parse_mode=ParseMode.MARKDOWN)
+                    await bot.send_message(id, emojize(":x: ***Провал!***", use_aliases=True),
+                                           parse_mode=ParseMode.MARKDOWN)
+
+
         elif command[1] == 'доп_навык':
-            pass
+            id = int(command[2])
+            skill = process_string(command[3])
+            bonuses = list(map(int, command[4][1:-1].split(sep=",")))
+            flag = True
+            try:
+                description = " ".join(command[5:])
+            except IndexError:
+                logger.info("Нет описания события!")
+                description = ""
+            logger.info(str(id) + skill + str(bonuses))
+            try:
+                skill_value = game.players[id].add_skills[skill]
+            except KeyError:
+                flag = False
+                skill_value = 0
+                await bot.send_message(ADMIN, f"***Такого навыка {skill} не существует!***"
+                                              f"\nПроверьте на наличие опечаток или посмотрите список"
+                                              f"дополнительных навыков",
+                                       parse_mode=ParseMode.MARKDOWN)
+
+            await bot.send_message(id, "Вызвана проверка дополнительного навыка - ***" + skill + "***."
+                                                                                           "\n***Описание события:***",
+                                   parse_mode=ParseMode.MARKDOWN)
+            if not description == "":
+                await bot.send_message(id, description)
+            else:
+                await bot.send_message(id, "Описание забрали рейдеры пустоши!")
+
+            if flag:
+                is_successful = check_skill(skill_value, bonuses, (-5, 105))
+
+                await sleep(2)
+                if is_successful:
+                    await bot.send_message(ADMIN, emojize(":white_check_mark: ***Успешно!***", use_aliases=True),
+                                           parse_mode=ParseMode.MARKDOWN)
+                    await bot.send_message(id, emojize(":white_check_mark: ***Успешно!***", use_aliases=True),
+                                           parse_mode=ParseMode.MARKDOWN)
+                else:
+                    await bot.send_message(ADMIN, emojize(":x: ***Провал!***", use_aliases=True),
+                                           parse_mode=ParseMode.MARKDOWN)
+                    await bot.send_message(id, emojize(":x: ***Провал!***", use_aliases=True),
+                                           parse_mode=ParseMode.MARKDOWN)
         else:
             await bot.send_message(ADMIN, f"***Неверный синтаксис***, такого сочетания с '{command[0]}' нет!",
                                    parse_mode=ParseMode.MARKDOWN)
     elif command[0] == 'изменить':
         if command[1] == "статус":
-            pass
+            id = int(command[2])
+            status = process_string(command[3])
+
+            # Проверяем целое число ли дано
+            try:
+                num = int(command[4])
+                # Проверяем на наличие статуса в списке
+                try:
+                    val = game.players[id].status[status]
+                    if val + num <= 0:
+                        await bot.send_message(ADMIN,
+                                               f"Значение состояния части тела ***{status}*** игрока {id} меньше нуля.\n"
+                                               f"Персонаж теряет эту часть тела.\n ***Учтите это!***",
+                                               parse_mode=ParseMode.MARKDOWN)
+                    game.players[id].status[status] += num
+
+                except KeyError:
+                    await bot.send_message(ADMIN, "Такого статуса нет! Проверьте список состояний игрока!")
+
+            except ValueError:
+                await bot.send_message(ADMIN, "Значение должно быть числом!")
+
         elif command[1] == "инвентарь":
-            pass
+            id = int(command[2])
+            item_name = process_string(command[3])
+
+
         else:
             await bot.send_message(ADMIN, f"***Неверный синтаксис***, такого сочетания с '{command[0]}' нет!",
                                    parse_mode=ParseMode.MARKDOWN)
@@ -144,10 +252,14 @@ async def process_admin_menu(msg: types.Message):
 
 @dp.message_handler(lambda msg: msg.from_user.id == ADMIN)
 async def admin_menu_processing(msg: types.Message):
-    if '!к' in msg.text:
-        command = list(map(str, msg.text[2:].split()))
-        logger.info(command)
-        await admin_console_processing(command)
+    if '!' in msg.text:
+        if '!к' in msg.text:
+            command = list(map(str, msg.text[2:].split()))
+            logger.info(command)
+            await admin_console_processing(command)
+        else:
+            await msg.answer("Команда введена неверно. Наверное, вы забыли ```!к```",
+                             parse_mode=ParseMode.MARKDOWN)
 
     if msg.text == MASTER_BUTTONS[2]:
         await Shout.shout.set()

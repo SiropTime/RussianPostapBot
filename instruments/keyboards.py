@@ -17,3 +17,7 @@ profile_kb.add(*PROFILE_BUTTONS)
 
 gamemaster_kb = types.ReplyKeyboardMarkup(resize_keyboard=True)
 gamemaster_kb.add(*MASTER_BUTTONS)
+
+check_skill_btn = types.InlineKeyboardButton(text="🎲 Проверить навык!", callback_data="check")
+check_skill_kb = types.InlineKeyboardMarkup(row_width=1)
+check_skill_kb.add(check_skill_btn)

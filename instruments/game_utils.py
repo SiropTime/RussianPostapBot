@@ -1,4 +1,5 @@
 from random import randint
+from typing import List
 
 MAIN_SKILL = 20
 ADD_SKILL = 100
@@ -39,9 +40,8 @@ class Item:
         return self.name + " " + self.description + " " + str(self.quantity)
 
 
-def check_skill(skill: int, bonuses=0, limit=(-5, 105)) -> bool:
-    if type is None:
-        if randint(limit[0], limit[1]) < skill + bonuses:
-            return True
-        else:
-            return False
+def check_skill(skill: int, bonuses: List[int], limit=(-5, 105)) -> bool:
+    if randint(limit[0], limit[1]) < skill + sum(bonuses):
+        return True
+    else:
+        return False
