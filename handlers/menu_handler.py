@@ -1,7 +1,10 @@
+from contextlib import suppress
 from datetime import datetime
 
-from instruments.utility import ADMIN, logger
-from telegram import dp, game, was_loaded
+from aiogram.utils.exceptions import MessageNotModified
+
+from instruments.utility import ADMIN, logger, levels
+from telegram import dp, game
 
 from aiogram import types
 from aiogram.dispatcher import FSMContext
@@ -9,7 +12,7 @@ from aiogram.types import ParseMode
 from emoji import emojize
 from aiogram.dispatcher.filters.state import StatesGroup, State
 
-from instruments.keyboards import main_menu_kb, profile_kb
+from instruments.keyboards import main_menu_kb, profile_kb, add_skills_kb, button_list
 from telegram import player, bot
 
 
@@ -25,6 +28,10 @@ class Profile(StatesGroup):
     inventory = State()
 
 
+class LevelUp(StatesGroup):
+    level_up = State()
+
+
 class WriteJournal(StatesGroup):
     write = State()
 
@@ -32,6 +39,45 @@ class WriteJournal(StatesGroup):
 @dp.message_handler(lambda msg: not msg.from_user.id == ADMIN, commands=['menu'])
 async def menu(msg: types.Message):
     await msg.answer("Меню", reply_markup=main_menu_kb)
+
+
+@dp.message_handler(lambda msg: not msg.from_user.id == ADMIN, commands=['level_up'])
+async def level_up(msg: types.Message):
+    if player.xp >= levels[player.level]:
+        await msg.answer("Выберите навыки для повышения уровня", reply_markup=add_skills_kb)
+        player.level += 1
+        await LevelUp.level_up.set()
+    else:
+        await msg.answer("Ваш уровень не поднялся!")
+
+
+level_up_skills = []
+
+
+@dp.callback_query_handler(state=LevelUp.level_up)
+async def process_level_up(callback_query: types.CallbackQuery, state=FSMContext):
+    with suppress(MessageNotModified):
+        if callback_query.data not in level_up_skills and not callback_query.data == "end":
+            if len(level_up_skills) >= 3:
+                await callback_query.answer(text="Вы уже выбрали 3 навыка! Уберите уже выбранные для изменения!",
+                                            show_alert=True)
+            else:
+                button_list[callback_query.data].text = "☑ " + button_list[callback_query.data].text
+                level_up_skills.append(callback_query.data)
+        elif callback_query.data in level_up_skills:
+            button_list[callback_query.data].text = button_list[callback_query.data].text[2:]
+            level_up_skills.remove(callback_query.data)
+        elif callback_query.data == "end":
+            if len(level_up_skills) < 3:
+                await callback_query.answer(text="Выберите 3 навыка!", show_alert=True)
+            else:
+                await bot.delete_message(callback_query.from_user.id, callback_query.message.message_id)
+                for skill, value in player.add_skills.items():
+                    if skill in level_up_skills:
+                        player.add_skills[skill] = int(value * 1.05)
+                player.update_player(game.cursor, game.db)
+                await state.finish()
+                await bot.send_message(player.id, "Меню", reply_markup=main_menu_kb)
 
 
 @dp.message_handler(lambda msg: not msg.from_user.id == ADMIN, state=WriteJournal.write)
@@ -56,16 +102,13 @@ async def processing_journal_write(msg: types.Message, state: FSMContext):
 
 @dp.message_handler(lambda msg: not msg.from_user.id == ADMIN)
 async def process_menu(msg: types.Message):
-    if was_loaded:
-        player.update_player(game.cursor, game.db)
-    else:
-        await msg.answer("***Загрузите*** (/return) или ***создайте*** персонажа (/start)",
-                         parse_mode=ParseMode.MARKDOWN)
+    player.load_player(game.cursor, game)
     player_profile = player.prepare_profile()
     # Обработка главного меню
     if msg.text == emojize(":clipboard: Профиль", use_aliases=True):
-        await msg.answer(emojize(":clipboard: ***Профиль***: " + player.name + "\n ***Опыт/Уровень***: " +
-                                 str(player.xp) + "/" + str(player.level)),
+        await msg.answer(emojize(":clipboard: ***Профиль***: " + player.name + "\n:mortar_board: ***Опыт/Уровень***: " +
+                                 str(player.xp) + "/" + str(player.level) + "\n :moneybag: ***Деньги***:"
+                                 + str(player.money)),
                          parse_mode=ParseMode.MARKDOWN,
                          reply_markup=profile_kb)
 

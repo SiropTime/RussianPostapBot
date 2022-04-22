@@ -15,10 +15,8 @@ class Game:
         self.animals = []
         self.players = {}
 
-        # self.helper = RolePlayHelper()
-
         try:
-            self.db = sqlite3.connect("data.db", check_same_thread=False)
+            self.db = sqlite3.connect("data.db")
             logger.info("Соединение с базой данных произошло успешно!")
         except Error as e:
             logger.error(f"При присоединении к БД произошла ошибка: '{e}'.")

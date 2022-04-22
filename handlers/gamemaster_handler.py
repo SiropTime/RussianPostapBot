@@ -9,9 +9,9 @@ from aiogram.types import ParseMode
 from aiogram.utils.exceptions import ChatNotFound
 from emoji import emojize
 
-from instruments.keyboards import gamemaster_kb, check_skill_kb
-from instruments.utility import ADMIN, MASTER_BUTTONS, logger
 from instruments.game_utils import Location, Animal, Item, check_skill
+from instruments.keyboards import gamemaster_kb
+from instruments.utility import ADMIN, MASTER_BUTTONS, logger, levels
 from telegram import dp, game, bot
 
 
@@ -93,25 +93,37 @@ async def admin_console_processing(command: List[str]):
 
         elif command[1] == 'предмет':
             item = Item()
-            id = 0
             try:
                 id = int(command[2])
                 item.quantity = int(command[4])
+                item.name = process_string(command[3])
+                item.description = " ".join(command[5:])
+                game.players[id].add_item_to_inventory(game.cursor, game.db, item)
+                await bot.send_message(ADMIN, "***Успешно!***", parse_mode=ParseMode.MARKDOWN)
             except ValueError:
                 await bot.send_message(ADMIN, "ID и количество предметов должно быть числами!")
-            item.name = process_string(command[3])
-            item.description = " ".join(command[5:])
-            game.players[id].add_item_to_inventory(game.cursor, game.db, item)
-            await bot.send_message(ADMIN, "***Успешно!***", parse_mode=ParseMode.MARKDOWN)
 
         elif command[1] == 'опыт':
             try:
                 id = int(command[2])
                 game.players[id].xp += int(command[3])
+                await bot.send_message(id, "Вы получили ***" + command[3] + " опыта!***", parse_mode=ParseMode.MARKDOWN)
+                if game.players[id].xp >= levels[game.players[id].level]:
+                    await bot.send_message(id, "Вам доступно повышение уровня! Введите команду /level_up, чтобы "
+                                               "повысить навыки!")
+                game.players[id].update_player(game.cursor, game.db)
+                await bot.send_message(ADMIN, "***Успешно!***", parse_mode=ParseMode.MARKDOWN)
             except ValueError:
                 await bot.send_message(ADMIN, "ID и количество опыта должны быть числами!")
-            game.players[id].update_player(game.cursor, game.db)
-            await bot.send_message(ADMIN, "***Успешно!***", parse_mode=ParseMode.MARKDOWN)
+
+        elif command[1] == 'деньги':
+            try:
+                id = int(command[2])
+                game.players[id].money += int(command[3])
+                game.players[id].update_player(game.cursor, game.db)
+                await bot.send_message(ADMIN, "***Успешно!***", parse_mode=ParseMode.MARKDOWN)
+            except ValueError:
+                await bot.send_message(ADMIN, "ID и количество денег должны быть числами!")
 
         else:
             await bot.send_message(ADMIN, f"***Неверный синтаксис***, такого сочетания с '{command[0]}' нет!",
@@ -151,15 +163,14 @@ async def admin_console_processing(command: List[str]):
                 await sleep(2)
                 if is_successful:
                     await bot.send_message(ADMIN, emojize(":white_check_mark: ***Успешно!***", use_aliases=True),
-                                 parse_mode=ParseMode.MARKDOWN)
+                                           parse_mode=ParseMode.MARKDOWN)
                     await bot.send_message(id, emojize(":white_check_mark: ***Успешно!***", use_aliases=True),
-                                 parse_mode=ParseMode.MARKDOWN)
+                                           parse_mode=ParseMode.MARKDOWN)
                 else:
                     await bot.send_message(ADMIN, emojize(":x: ***Провал!***", use_aliases=True),
                                            parse_mode=ParseMode.MARKDOWN)
                     await bot.send_message(id, emojize(":x: ***Провал!***", use_aliases=True),
                                            parse_mode=ParseMode.MARKDOWN)
-
 
         elif command[1] == 'доп_навык':
             id = int(command[2])
@@ -183,7 +194,8 @@ async def admin_console_processing(command: List[str]):
                                        parse_mode=ParseMode.MARKDOWN)
 
             await bot.send_message(id, "Вызвана проверка дополнительного навыка - ***" + skill + "***."
-                                                                                           "\n***Описание события:***",
+                                                                                                 "\n***Описание "
+                                                                                                 "события:***",
                                    parse_mode=ParseMode.MARKDOWN)
             if not description == "":
                 await bot.send_message(id, description)
@@ -224,7 +236,7 @@ async def admin_console_processing(command: List[str]):
                                                f"Персонаж теряет эту часть тела.\n ***Учтите это!***",
                                                parse_mode=ParseMode.MARKDOWN)
                     game.players[id].status[status] += num
-
+                    game.players[id].update_player()
                 except KeyError:
                     await bot.send_message(ADMIN, "Такого статуса нет! Проверьте список состояний игрока!")
 
@@ -232,8 +244,15 @@ async def admin_console_processing(command: List[str]):
                 await bot.send_message(ADMIN, "Значение должно быть числом!")
 
         elif command[1] == "инвентарь":
+            item = process_string(command[3])
             id = int(command[2])
-            item_name = process_string(command[3])
+            quantity = int(command[4])
+            if quantity <= 0:
+                game.players[id].delete_item(item, game.cursor, game.db)
+            else:
+                game.players[id].update_item(item, quantity, game.cursor, game.db)
+            await bot.send_message(ADMIN, emojize(":white_check_mark: ***Успешно!***", use_aliases=True),
+                                   parse_mode=ParseMode.MARKDOWN)
 
 
         else:

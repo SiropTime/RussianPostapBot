@@ -1,5 +1,6 @@
 import sqlite3
 from random import randint
+from typing import Optional, Any
 
 from emoji import emojize
 from aiogram.utils import markdown as md
@@ -87,6 +88,13 @@ class Player:
                         """, (self.id, item.name, item.quantity, item.description, item.is_usable))
         connection.commit()
 
+    def search_in_inventory(self, item_name: str) -> Optional[Any]:
+        for item in self.inventory:
+            if item.name == item_name:
+                return item
+        else:
+            return None
+
     # Создаём персонажа и загружаем его в бд.
     #
     def create_player(self, cursor: sqlite3.Cursor, connection: sqlite3.Connection):
@@ -140,12 +148,16 @@ class Player:
         logger.info("Успешно завершена загрузка персонажа с id:" + str(self.id))
 
     # Удаление предмета из инвентаря
-    def delete_item(self, item: Item):
-        pass
+    def delete_item(self, item: str, cursor: sqlite3.Cursor, connection: sqlite3.Connection):
+        self.inventory.remove(self.search_in_inventory(item))
+        cursor.execute("DELETE FROM inventory WHERE item = ?;",
+                       [item])
+        connection.commit()
 
-    # Изменение количества предметов в инвентаре
-    def update_quantity_of_item(self, item: Item, quantity: int):
-        pass
+    def update_item(self, item: str, quantity: int, cursor: sqlite3.Cursor, connection: sqlite3.Connection):
+        cursor.execute("UPDATE inventory SET quantity = ? WHERE item = ?;",
+                       (quantity, item))
+        connection.commit()
 
     def calculate_skills(self, cursor: sqlite3.Cursor, conn: sqlite3.Connection):
         """

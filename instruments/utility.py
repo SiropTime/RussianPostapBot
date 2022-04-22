@@ -8,6 +8,12 @@ import aiogram.utils.markdown as md
 TOKEN = "5218155011:AAF0GYeUQtMswyMXHhsULlrLHlnQrphEpA8"
 ADMIN = 390919747
 
+levels = [
+        50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900, 950, 1000,
+        2100, 2200, 2300, 2400, 2500, 2600, 2700, 2800, 2900, 3000, 3100, 3200, 3300, 3400, 3500, 3600, 3700, 3800,
+        3900, 4000
+]
+
 logger = logging.getLogger(__name__)
 
 handler = logging.StreamHandler(stream=sys.stdout)

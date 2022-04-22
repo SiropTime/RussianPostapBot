@@ -18,7 +18,6 @@ storage = MemoryStorage()
 dp = Dispatcher(bot, storage=storage)
 game = Game()
 player = Player()
-was_loaded = False
 
 
 class Form(StatesGroup):
@@ -42,7 +41,6 @@ async def return_player(msg: types.Message, state: FSMContext):
     player.id = msg.from_user.id
     try:
         player.load_player(game.cursor, game)
-        was_loaded = True
     except TypeError:
         await msg.answer("На вас не зарегистрирован персонаж. Попробуйте создать нового!")
     try:
@@ -62,12 +60,12 @@ async def on_startup(_):
             logger.info("Игрок с id" + str(p) + " не имеет чата с ботом")
 
 # Переменные для экспорта
-__all__ = ["dp", "bot", "game", "player", "Form", "was_loaded"]
+__all__ = ["dp", "bot", "game", "player", "Form"]
 
 if __name__ == "__main__":
     # Соединяем хэндлеры с основной программой
     from handlers import dp
 
-    executor.start_polling(dp, skip_updates=True, on_startup=on_startup)
+    executor.start_polling(dp, on_startup=on_startup)
 
 
