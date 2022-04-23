@@ -99,5 +99,6 @@ MASTER_BUTTONS = [
     emojize(":bar_chart: Список холопов", use_aliases=True),
     emojize(":scroll: Журнал", use_aliases=True),
     emojize(":mega: Поорать", use_aliases=True),
-    emojize(":city_sunset: Покалякать в журнал", use_aliases=True)
+    emojize(":city_sunset: Покалякать в журнал", use_aliases=True),
+    emojize(":turtle: Бесстиарий", use_aliases=True)
 ]
