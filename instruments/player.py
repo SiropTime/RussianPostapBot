@@ -57,13 +57,13 @@ class Player:
         main_chars_msg = md.text(
             emojize(":floppy_disk: ***Основные характеристики***:\n",
                     use_aliases=True),
-            emojize("   :muscle: Физподготовка: " + str(self.main_skills["Физподготовка"]),
+            emojize("   :muscle: ***Физподготовка***: " + str(self.main_skills["Физподготовка"]),
                     use_aliases=True),
-            emojize("   :brain: Интеллект: " + str(self.main_skills["Интеллект"]),
+            emojize("   :brain: ***Интеллект***: " + str(self.main_skills["Интеллект"]),
                     use_aliases=True),
-            emojize("   :eyes: Восприятие: " + str(self.main_skills["Восприятие"]),
+            emojize("   :eyes: ***Восприятие***: " + str(self.main_skills["Восприятие"]),
                     use_aliases=True),
-            emojize("   :bust_in_silhouette: Харизма: " + str(self.main_skills["Харизма"]),
+            emojize("   :bust_in_silhouette: ***Харизма***: " + str(self.main_skills["Харизма"]) + "\n",
                     use_aliases=True),
             sep="\n")
         add_chars_msg = emojize(":game_die: ***Дополнительные характеристики***\n\n", use_aliases=True)
