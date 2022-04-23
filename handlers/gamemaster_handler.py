@@ -254,6 +254,21 @@ async def admin_console_processing(command: List[str]):
             await bot.send_message(ADMIN, emojize(":white_check_mark: ***Успешно!***", use_aliases=True),
                                    parse_mode=ParseMode.MARKDOWN)
 
+        elif command[1] == "локация":
+            try:
+                id = int(command[2])
+                location = command[3]
+                for loc in game.locations:
+                    if loc.name == location:
+                        game.players[id].location = loc
+                        game.players[id].update_player(game.cursor, game.db)
+                        await bot.send_message(ADMIN, "***Успешно!***", parse_mode=ParseMode.MARKDOWN)
+                        break
+                else:
+                    await bot.send_message(ADMIN, "Такой локации не существует!")
+
+            except ValueError:
+                await bot.send_message(ADMIN, "ID должно быть числом!")
 
         else:
             await bot.send_message(ADMIN, f"***Неверный синтаксис***, такого сочетания с '{command[0]}' нет!",

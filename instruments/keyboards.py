@@ -5,9 +5,17 @@ from telegram import player
 
 add_skills_kb = types.InlineKeyboardMarkup(row_width=3)
 
+add_skills_btns = dict([(x, types.InlineKeyboardButton(text=x, callback_data=x)) for x in player.add_skills.keys()])
+add_skills_btns["exit"] = types.InlineKeyboardButton(text="❌ Завершить", callback_data="end")
+
 button_list = dict([(x, types.InlineKeyboardButton(text=x, callback_data=x)) for x in player.add_skills.keys()])
 button_list["exit"] = types.InlineKeyboardButton(text="❌ Завершить", callback_data="end")
 add_skills_kb.add(*list(button_list.values()))
+
+lvl_up_kb = types.InlineKeyboardMarkup(row_width=3)
+btn_list = dict([(x, types.InlineKeyboardButton(text=x, callback_data=x)) for x in player.add_skills.keys()])
+btn_list["exit"] = types.InlineKeyboardButton(text="❌ Завершить", callback_data="end")
+lvl_up_kb.add(*list(btn_list.values()))
 
 main_menu_kb = types.ReplyKeyboardMarkup(resize_keyboard=True)
 main_menu_kb.add(*MENU_BUTTONS)

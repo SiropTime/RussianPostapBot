@@ -5,7 +5,7 @@ from emoji import emojize
 import aiogram.utils.markdown as md
 
 
-TOKEN = "5218155011:AAF0GYeUQtMswyMXHhsULlrLHlnQrphEpA8"
+TOKEN = "TOKEN"
 ADMIN = 390919747
 
 levels = [

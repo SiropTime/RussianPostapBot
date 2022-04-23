@@ -1,18 +1,16 @@
 from contextlib import suppress
 from datetime import datetime
 
-from aiogram.utils.exceptions import MessageNotModified
-
-from instruments.utility import ADMIN, logger, levels
-from telegram import dp, game
-
 from aiogram import types
 from aiogram.dispatcher import FSMContext
-from aiogram.types import ParseMode
-from emoji import emojize
 from aiogram.dispatcher.filters.state import StatesGroup, State
+from aiogram.types import ParseMode
+from aiogram.utils.exceptions import MessageNotModified
+from emoji import emojize
 
-from instruments.keyboards import main_menu_kb, profile_kb, add_skills_kb, button_list
+from instruments.keyboards import main_menu_kb, profile_kb, btn_list, lvl_up_kb
+from instruments.utility import ADMIN, levels
+from telegram import dp, game
 from telegram import player, bot
 
 
@@ -44,7 +42,7 @@ async def menu(msg: types.Message):
 @dp.message_handler(lambda msg: not msg.from_user.id == ADMIN, commands=['level_up'])
 async def level_up(msg: types.Message):
     if player.xp >= levels[player.level]:
-        await msg.answer("Выберите навыки для повышения уровня", reply_markup=add_skills_kb)
+        await msg.answer("Выберите навыки для повышения уровня", reply_markup=lvl_up_kb)
         player.level += 1
         await LevelUp.level_up.set()
     else:
@@ -62,10 +60,10 @@ async def process_level_up(callback_query: types.CallbackQuery, state=FSMContext
                 await callback_query.answer(text="Вы уже выбрали 3 навыка! Уберите уже выбранные для изменения!",
                                             show_alert=True)
             else:
-                button_list[callback_query.data].text = "☑ " + button_list[callback_query.data].text
+                btn_list[callback_query.data].text = "☑ " + btn_list[callback_query.data].text
                 level_up_skills.append(callback_query.data)
         elif callback_query.data in level_up_skills:
-            button_list[callback_query.data].text = button_list[callback_query.data].text[2:]
+            btn_list[callback_query.data].text = btn_list[callback_query.data].text[2:]
             level_up_skills.remove(callback_query.data)
         elif callback_query.data == "end":
             if len(level_up_skills) < 3:

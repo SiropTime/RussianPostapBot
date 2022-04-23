@@ -41,7 +41,6 @@ async def process_add_skills(callback_query: types.CallbackQuery, state=FSMConte
                 player.calculate_skills(game.cursor, game.db)
                 logger.info(player.add_skills)
                 await state.finish()
-                # await Menu.main.set()
                 await bot.send_message(player.id, "Меню", reply_markup=main_menu_kb)
 
     print(priority_skills)
