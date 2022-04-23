@@ -85,7 +85,8 @@ MENU_BUTTONS = [
                 emojize(":clipboard: Профиль", use_aliases=True),
                 emojize(":earth_asia: Местоположение", use_aliases=True),
                 emojize(":email: Отправить текст отыгрыша", use_aliases=True),
-                emojize(":scroll: Журнал", use_aliases=True)
+                emojize(":scroll: Журнал", use_aliases=True),
+                emojize(":turtle: Бесстиарий", use_aliases=True)
                 ]
 
 PROFILE_BUTTONS = [emojize(":floppy_disk: Основные навыки", use_aliases=True),

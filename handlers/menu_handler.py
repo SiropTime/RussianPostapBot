@@ -6,9 +6,10 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import StatesGroup, State
 from aiogram.types import ParseMode
 from aiogram.utils.exceptions import MessageNotModified
+import aiogram.utils.markdown as md
 from emoji import emojize
 
-from instruments.keyboards import main_menu_kb, profile_kb, btn_list, lvl_up_kb
+from instruments.keyboards import main_menu_kb, profile_kb, btn_list, lvl_up_kb, return_kb
 from instruments.utility import ADMIN, levels
 from telegram import dp, game
 from telegram import player, bot
@@ -34,6 +35,10 @@ class WriteJournal(StatesGroup):
     write = State()
 
 
+class Bestiary(StatesGroup):
+    bestiary = State()
+
+
 @dp.message_handler(lambda msg: not msg.from_user.id == ADMIN, commands=['menu'])
 async def menu(msg: types.Message):
     await msg.answer("Меню", reply_markup=main_menu_kb)
@@ -49,11 +54,28 @@ async def level_up(msg: types.Message):
         await msg.answer("Ваш уровень не поднялся!")
 
 
+@dp.message_handler(lambda msg: not msg.from_user.id == ADMIN)
+async def process_bestiary(msg: types.Message, state: FSMContext):
+    if msg.text == emojize(":leftwards_arrow_with_hook: Обратно в меню", use_aliases=True):
+        await state.finish()
+        await msg.answer("Меню", reply_markup=main_menu_kb)
+    else:
+        for animal in game.animals:
+            if animal.name == msg.text:
+                an_msg = emojize(":paw_prints: ***" + animal.name + "***\n", use_aliases=True)
+                an_msg += emojize("  :globe_with_meridians: ***Ареал обитания***: " + animal.area + "\n", use_aliases=True)
+                an_msg += emojize("  :page_facing_up: ***Описание животного***: " + animal.description + "\n", use_aliases=True)
+                await msg.answer(an_msg, parse_mode=ParseMode.MARKDOWN)
+                break
+        else:
+            await msg.answer(emojize(":x: Такого животного ещё нет в бестиарии!", use_aliases=True))
+
+
 level_up_skills = []
 
 
 @dp.callback_query_handler(state=LevelUp.level_up)
-async def process_level_up(callback_query: types.CallbackQuery, state=FSMContext):
+async def process_level_up(callback_query: types.CallbackQuery, state: FSMContext):
     with suppress(MessageNotModified):
         if callback_query.data not in level_up_skills and not callback_query.data == "end":
             if len(level_up_skills) >= 3:
@@ -134,6 +156,16 @@ async def process_menu(msg: types.Message):
                              parse_mode=ParseMode.MARKDOWN)
             journal = f.read()
             await msg.answer(journal)
+
+    if msg.text == emojize(":turtle: Бесстиарий", use_aliases=True):
+        bes_msg = emojize(":turtle: ***Бесстиарий***\n\n", use_aliases=True)
+        for animal in game.animals:
+            bes_msg += emojize(":paw_prints: " + md.code(animal.name) + "\n")
+        await msg.answer(bes_msg, parse_mode=ParseMode.MARKDOWN)
+        await Bestiary.bestiary.set()
+        await msg.answer(md.text("Чтобы узнать больше о животном, отправьте его имя",
+                                 md.italic("(оно автоматически копируется при нажатии на него)!"),
+                                 sep=" "), parse_mode=ParseMode.MARKDOWN, reply_markup=return_kb)
 
     # Обработка выхода из всех подменю
     if msg.text == emojize(":leftwards_arrow_with_hook: Обратно в меню", use_aliases=True):

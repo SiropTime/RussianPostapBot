@@ -99,7 +99,8 @@ async def admin_console_processing(command: List[str]):
                 item.name = process_string(command[3])
                 item.description = " ".join(command[5:])
                 game.players[id].add_item_to_inventory(game.cursor, game.db, item)
-                await bot.send_message(ADMIN, "***Успешно!***", parse_mode=ParseMode.MARKDOWN)
+                await bot.send_message(ADMIN, emojize(":white_check_mark: ***Успешно!***", use_aliases=True),
+                                       parse_mode=ParseMode.MARKDOWN)
             except ValueError:
                 await bot.send_message(ADMIN, "ID и количество предметов должно быть числами!")
 
@@ -112,7 +113,8 @@ async def admin_console_processing(command: List[str]):
                     await bot.send_message(id, "Вам доступно повышение уровня! Введите команду /level_up, чтобы "
                                                "повысить навыки!")
                 game.players[id].update_player(game.cursor, game.db)
-                await bot.send_message(ADMIN, "***Успешно!***", parse_mode=ParseMode.MARKDOWN)
+                await bot.send_message(ADMIN, emojize(":white_check_mark: ***Успешно!***", use_aliases=True),
+                                       parse_mode=ParseMode.MARKDOWN)
             except ValueError:
                 await bot.send_message(ADMIN, "ID и количество опыта должны быть числами!")
 
@@ -121,7 +123,8 @@ async def admin_console_processing(command: List[str]):
                 id = int(command[2])
                 game.players[id].money += int(command[3])
                 game.players[id].update_player(game.cursor, game.db)
-                await bot.send_message(ADMIN, "***Успешно!***", parse_mode=ParseMode.MARKDOWN)
+                await bot.send_message(ADMIN, emojize(":white_check_mark: ***Успешно!***", use_aliases=True),
+                                       parse_mode=ParseMode.MARKDOWN)
             except ValueError:
                 await bot.send_message(ADMIN, "ID и количество денег должны быть числами!")
 
@@ -232,11 +235,16 @@ async def admin_console_processing(command: List[str]):
                     val = game.players[id].status[status]
                     if val + num <= 0:
                         await bot.send_message(ADMIN,
-                                               f"Значение состояния части тела ***{status}*** игрока {id} меньше нуля.\n"
-                                               f"Персонаж теряет эту часть тела.\n ***Учтите это!***",
+                                               emojize(
+                                                   f":bangbang: Значение состояния части тела ***{status}*** игрока {id} "
+                                                   f"меньше нуля.\n "
+                                                   f"Персонаж теряет эту часть тела.\n ***Учтите это!***",
+                                                   use_aliases=True),
                                                parse_mode=ParseMode.MARKDOWN)
                     game.players[id].status[status] += num
                     game.players[id].update_player()
+                    await bot.send_message(ADMIN, emojize(":white_check_mark: ***Успешно!***", use_aliases=True),
+                                           parse_mode=ParseMode.MARKDOWN)
                 except KeyError:
                     await bot.send_message(ADMIN, "Такого статуса нет! Проверьте список состояний игрока!")
 
@@ -245,14 +253,20 @@ async def admin_console_processing(command: List[str]):
 
         elif command[1] == "инвентарь":
             item = process_string(command[3])
-            id = int(command[2])
-            quantity = int(command[4])
-            if quantity <= 0:
-                game.players[id].delete_item(item, game.cursor, game.db)
+            if not game.players[id].search_in_inventory(item):
+                await bot.send_message(ADMIN, "Такого предмета нет в инвентаре игрока!")
             else:
-                game.players[id].update_item(item, quantity, game.cursor, game.db)
-            await bot.send_message(ADMIN, emojize(":white_check_mark: ***Успешно!***", use_aliases=True),
-                                   parse_mode=ParseMode.MARKDOWN)
+                try:
+                    id = int(command[2])
+                    quantity = int(command[4])
+                    if quantity <= 0:
+                        game.players[id].delete_item(item, game.cursor, game.db)
+                    else:
+                        game.players[id].update_item(item, quantity, game.cursor, game.db)
+                    await bot.send_message(ADMIN, emojize(":white_check_mark: ***Успешно!***", use_aliases=True),
+                                           parse_mode=ParseMode.MARKDOWN)
+                except ValueError:
+                    await bot.send_message(ADMIN, "Количество и айди должны быть числами!")
 
         elif command[1] == "локация":
             try:
@@ -262,7 +276,8 @@ async def admin_console_processing(command: List[str]):
                     if loc.name == location:
                         game.players[id].location = loc
                         game.players[id].update_player(game.cursor, game.db)
-                        await bot.send_message(ADMIN, "***Успешно!***", parse_mode=ParseMode.MARKDOWN)
+                        await bot.send_message(ADMIN, emojize(":white_check_mark: ***Успешно!***", use_aliases=True),
+                                               parse_mode=ParseMode.MARKDOWN)
                         break
                 else:
                     await bot.send_message(ADMIN, "Такой локации не существует!")

@@ -88,12 +88,12 @@ class Player:
                         """, (self.id, item.name, item.quantity, item.description, item.is_usable))
         connection.commit()
 
-    def search_in_inventory(self, item_name: str) -> Optional[Any]:
+    def search_in_inventory(self, item_name: str) -> bool:
         for item in self.inventory:
             if item.name == item_name:
-                return item
+                return True
         else:
-            return None
+            return False
 
     # Создаём персонажа и загружаем его в бд.
     #
@@ -155,6 +155,9 @@ class Player:
         connection.commit()
 
     def update_item(self, item: str, quantity: int, cursor: sqlite3.Cursor, connection: sqlite3.Connection):
+        for it in self.inventory:
+            if item == it.name:
+                it.quantity = quantity
         cursor.execute("UPDATE inventory SET quantity = ? WHERE item = ?;",
                        (quantity, item))
         connection.commit()

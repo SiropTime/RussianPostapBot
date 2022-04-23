@@ -1,4 +1,5 @@
 from aiogram import types
+from emoji import emojize
 
 from instruments.utility import MENU_BUTTONS, PROFILE_BUTTONS, MASTER_BUTTONS
 from telegram import player
@@ -25,6 +26,9 @@ profile_kb.add(*PROFILE_BUTTONS)
 
 gamemaster_kb = types.ReplyKeyboardMarkup(resize_keyboard=True)
 gamemaster_kb.add(*MASTER_BUTTONS)
+
+return_kb = types.ReplyKeyboardMarkup(resize_keyboard=True)
+gamemaster_kb.add(emojize(":leftwards_arrow_with_hook: Обратно в меню", use_aliases=True))
 
 check_skill_btn = types.InlineKeyboardButton(text="🎲 Проверить навык!", callback_data="check")
 check_skill_kb = types.InlineKeyboardMarkup(row_width=1)
